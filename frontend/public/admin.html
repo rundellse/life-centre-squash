@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Admin Page</title>
+        <meta name="description" content="Admin page for Life Centre Squash League">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../src/css/styles.css">
+    </head>
+    <body>
+        <h1>Plymouth Life Centre Squash League</h1>
+        <nav>
+            <a href="index.html">League</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+
+        <form id="add-player-form">
+            <h2>Add New Player</h2>
+            <label>Name</label>
+            <input id="name-field" type="text"></input>
+            <br/><br/>
+            <label>Phone Number</label>
+            <input id="phone-field" type="text"></input>
+            <br/><br/>
+            <label>Email</label>
+            <input id="email-field" type="text"></input>
+            <br/><br/>
+            <label>Division</label>
+            <input id="division-field" type="number"></input>
+            <br/><br/>
+            <label>Availability Notes</label>
+            <textarea id="availability-field" type="text"></textarea>
+            <button type="button" onclick="" id="new-player-button">Save Player</button>
+        </form>
+        <hr/>
+
+        <form id="delete-player-form">
+            <h2>Delete Player</h2>
+            <select name="delete-player-select" id="delete-player-select">
+                <option style="display:none" disabled selected value></option>
+                <!-- List populated with player list from server -->
+            </select>
+            <button type="button" onclick="" id="delete-player-button">Delete Player</button> 
+        </form>
+    </body>
+    <script src="../src/js/adminScript.js"></script>
+</html>

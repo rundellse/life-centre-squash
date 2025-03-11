@@ -1,0 +1,43 @@
+table {
+    margin-left: 10%;
+    border: 1px solid black;
+    table-layout: auto;
+    width: 60%;
+
+    text-transform: capitalize;
+}
+
+tr, th, td {
+    border: 1px solid black;
+    height: 40px;
+    min-width: 25px;
+    padding-inline: 5px 5px;
+}
+
+td {
+    max-width: 50px;
+}
+
+.phone-number-div {
+    height: 50%;
+    display: grid;
+}
+
+.email-div {
+    height: 50%;
+    display: grid;
+    text-transform: lowercase;
+}
+
+.self-game-cell {
+    background: grey;
+}
+
+.availability-div {
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    background-color: lightgray;
+
+    display: none;
+}
