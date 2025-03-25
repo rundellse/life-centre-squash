@@ -9,10 +9,17 @@ class Division {
 
 document.addEventListener('DOMContentLoaded', function() {
     const apiUrl = 'http://localhost:8080/api/players';
+    const credentials = btoa('user' + ':' + 'password1');
     const tableBlock = document.querySelector('#table-block');
     const divisions = [];
 
-    fetch(apiUrl)
+    fetch(apiUrl, {
+        // credentials: 'include',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Basic ' + credentials
+        }
+    })
         .then(response => response.json())
         .then(players => {
             players.forEach(player => {
@@ -66,18 +73,18 @@ function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTabl
     const nameCell = document.createElement('th');
     nameCell.className = 'name-div';
     nameCell.innerText = player.name;
-    const availabilityPopup = document.createElement('div');
-    availabilityPopup.className = 'availability-div';
-    availabilityPopup.innerText = player.availabilityNotes;
+    // const availabilityPopup = document.createElement('div');
+    // availabilityPopup.className = 'availability-div';
+    // availabilityPopup.innerText = player.availabilityNotes;
 
-    nameCell.addEventListener('mouseenter', () => {
-        availabilityPopup.style.display = 'block';
-    });
-    nameCell.addEventListener('mouseleave', () => {
-        availabilityPopup.style.display = 'none';
-    });
+    // nameCell.addEventListener('mouseenter', () => {
+    //     availabilityPopup.style.display = 'block';
+    // });
+    // nameCell.addEventListener('mouseleave', () => {
+    //     availabilityPopup.style.display = 'none';
+    // });
 
-    nameCell.appendChild(availabilityPopup);
+    // nameCell.appendChild(availabilityPopup);
     row.appendChild(nameCell);
 
     const playerDetails = `
@@ -97,6 +104,6 @@ function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTabl
     }
 
     row.innerHTML = letterCell + row.innerHTML + playerDetails + gameCells;
-    row.getElementsByClassName('name-div')
+    // row.getElementsByClassName('name-div');
     divisionTable.appendChild(row);
 }

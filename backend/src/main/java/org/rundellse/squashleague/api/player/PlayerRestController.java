@@ -5,9 +5,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerH2DAO;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping
+@CrossOrigin
 public class PlayerRestController {
 
 //    private static Logger LOG = LoggerFactory.getLogger(PlayerRestController.class.getName());
@@ -26,8 +27,12 @@ public class PlayerRestController {
     }
 
 
+    @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
+    public ResponseEntity<Object> handleOptionsRequest() {
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/players")
-    @CrossOrigin
     public Map<Long, Player> newPlayer(@RequestBody Player player) {
         Map<Long, Player> playerResponse = new HashMap<>();
         playerResponse.put(playerH2DAO.persistPlayer(player), player);
@@ -35,7 +40,6 @@ public class PlayerRestController {
     }
 
     @PostMapping("/players/{id}")
-    @CrossOrigin
     public Player updatePlayer(@PathVariable Long id, @RequestBody Player player) {
         Player playerToUpdate = player.withID(id);
         return playerH2DAO.updatePlayer(playerToUpdate);
@@ -43,7 +47,6 @@ public class PlayerRestController {
 
     @DeleteMapping("/players/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @CrossOrigin
     public void deletePlayer(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable Long id) {
         playerH2DAO.deletePlayer(id);
     }

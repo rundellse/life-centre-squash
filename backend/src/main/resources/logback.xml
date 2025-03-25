@@ -1,4 +1,4 @@
-<configuration scan="true" scanPeriod="10 seconds">
+<configuration scan="true">
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
@@ -9,7 +9,7 @@
 
     <logger name="org.apache.tomcat" level="INFO" />
 
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="STDOUT" />
     </root>
 

@@ -44,6 +44,32 @@
             </select>
             <button type="button" onclick="" id="delete-player-button">Delete Player</button> 
         </form>
+        <hr/>
+
+        <form id="update-player-form">
+            <h2>Update Player</h2>
+            <select name="update-player-select" id="update-player-select">
+                <option style="display:none" disabled selected value></option>
+                <!-- List populated with player list from server -->
+            </select>
+            <br/><br/><br/>
+            <label>Name</label>
+            <input id="name-update-field" type="text" autocomplete="off"></input>
+            <br/><br/>
+            <label>Phone Number</label>
+            <input id="phone-update-field" type="text" autocomplete="off"></input>
+            <br/><br/>
+            <label>Email</label>
+            <input id="email-update-field" type="text" autocomplete="off"></input>
+            <br/><br/>
+            <label>Division</label>
+            <input id="division-update-field" type="number" autocomplete="off"></input>
+            <br/><br/>
+            <label>Availability Notes</label>
+            <textarea id="availability-update-field" type="text" autocomplete="off"></textarea>
+            <button type="button" onclick="" id="update-player-button">Update Player</button>
+        </form>
     </body>
+
     <script src="../src/js/adminScript.js"></script>
 </html>

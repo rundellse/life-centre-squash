@@ -1,17 +1,27 @@
 package org.rundellse.squashleague;
 
 import org.rundellse.squashleague.api.player.PlayerRestController;
-import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.H2DatabaseConnection;
 import org.rundellse.squashleague.persistence.PlayerH2DAO;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class SquashLeagueConfiguration {
+@EnableWebSecurity
+public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
     @Bean
     public DispatcherServlet dispatcherServlet() {
@@ -20,6 +30,7 @@ public class SquashLeagueConfiguration {
 
     @Bean
     public DispatcherServletRegistrationBean dispatcherServletRegistration() {
+        // Prepend all api paths with '/api/'. Done simply for clarity.
         return new DispatcherServletRegistrationBean(dispatcherServlet(), "/api/");
     }
 
@@ -39,5 +50,29 @@ public class SquashLeagueConfiguration {
     }
 
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS);
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+
+        // Example only, to go before any real deployment, of course.
+        UserDetails userDetails = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("password1")
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(userDetails);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        //TODO Implement csrf, disabled for now.
+        http.csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
 
 }
