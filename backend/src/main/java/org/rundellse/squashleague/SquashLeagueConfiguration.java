@@ -3,6 +3,9 @@ package org.rundellse.squashleague;
 import org.rundellse.squashleague.api.player.PlayerRestController;
 import org.rundellse.squashleague.persistence.H2DatabaseConnection;
 import org.rundellse.squashleague.persistence.PlayerH2DAO;
+import org.rundellse.squashleague.persistence.SeasonH2DAO;
+import org.rundellse.squashleague.persistence.SquashMatchH2DAO;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +48,16 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
+    public SeasonH2DAO seasonH2DAO() {
+        return new SeasonH2DAO();
+    }
+
+    @Bean
+    public SquashMatchH2DAO squashMatchH2DAO() {
+        return new SquashMatchH2DAO();
+    }
+
+    @Bean
     public PlayerRestController playerRestController() {
         return new PlayerRestController(playerH2DAO());
     }
@@ -73,6 +86,20 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
         //TODO Implement csrf, disabled for now.
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
+    }
+
+    @Bean
+    public CommandLineRunner initDatabaseTables() {
+        PlayerH2DAO playerH2DAO = playerH2DAO();
+        SeasonH2DAO seasonH2DAO = seasonH2DAO();
+        SquashMatchH2DAO squashMatchH2DAO = squashMatchH2DAO();
+
+        return args -> {
+            playerH2DAO.createTable();
+            seasonH2DAO.createTable();
+            squashMatchH2DAO.createTable();
+        };
+        
     }
 
 }

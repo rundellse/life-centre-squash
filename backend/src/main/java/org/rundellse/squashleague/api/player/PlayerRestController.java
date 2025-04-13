@@ -41,8 +41,8 @@ public class PlayerRestController {
 
     @PostMapping("/players/{id}")
     public Player updatePlayer(@PathVariable Long id, @RequestBody Player player) {
-        Player playerToUpdate = player.withID(id);
-        return playerH2DAO.updatePlayer(playerToUpdate);
+        player.setId(id);
+        return playerH2DAO.updatePlayer(player);
     }
 
     @DeleteMapping("/players/{id}")

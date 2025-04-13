@@ -6,14 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Repository
 public class PlayerH2DAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerH2DAO.class.getName());
@@ -22,8 +22,7 @@ public class PlayerH2DAO {
     private H2DatabaseConnection h2DatabaseConnection;
 
     private final static String createPlayerTable = """
-            CREATE TABLE
-            IF NOT EXISTS
+            CREATE TABLE IF NOT EXISTS
             PLAYER (ID BIGINT AUTO_INCREMENT PRIMARY KEY, NAME VARCHAR(255) NOT NULL, EMAIL VARCHAR(255), PHONE_NUMBER VARCHAR(255), DIVISION INT, AVAILABILITY_NOTES VARCHAR(MAX), RESULTS VARCHAR(MAX));
             """;
 
@@ -55,13 +54,11 @@ public class PlayerH2DAO {
             """;
 
     public void createTable() {
-        LOG.info("Creating table with query: \n" + createPlayerTable);
-
         try (Connection connection = h2DatabaseConnection.getH2Connection();
              Statement statement = connection.createStatement();
         ) {
             statement.execute(createPlayerTable);
-            LOG.info("Table created successfully.");
+            LOG.info("Player table created successfully.");
         } catch (SQLException e) {
             H2DatabaseConnection.logSQLException(e);
         }
@@ -145,11 +142,11 @@ public class PlayerH2DAO {
         try (Connection connection = h2DatabaseConnection.getH2Connection();
              PreparedStatement preparedStatement = connection.prepareStatement(insertPlayer, Statement.RETURN_GENERATED_KEYS);
         ) {
-            preparedStatement.setString(1, player.name());
-            preparedStatement.setString(2, player.email());
-            preparedStatement.setString(3, player.phoneNumber());
-            preparedStatement.setInt(4, player.division());
-            preparedStatement.setString(5, player.availabilityNotes());
+            preparedStatement.setString(1, player.getName());
+            preparedStatement.setString(2, player.getEmail());
+            preparedStatement.setString(3, player.getPhoneNumber());
+            preparedStatement.setInt(4, player.getDivision());
+            preparedStatement.setString(5, player.getAvailabilityNotes());
 
             preparedStatement.executeUpdate();
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
@@ -159,7 +156,7 @@ public class PlayerH2DAO {
                 throw new SQLDataException("Not able to get ID for saved Player");
             }
         } catch (SQLException e) {
-            LOG.error("SQL Exception while attempting to save Player to database with ID: " + player.id());
+            LOG.error("SQL Exception while attempting to save Player to database with ID: " + player.getId());
             H2DatabaseConnection.logSQLException(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while persisting Player", e);
         }
@@ -168,21 +165,21 @@ public class PlayerH2DAO {
     }
 
     public Player updatePlayer(Player player) {
-        LOG.info("Updating player with ID: " + player.id());
+        LOG.info("Updating player with ID: " + player.getId());
 
         try (Connection connection = h2DatabaseConnection.getH2Connection();
-             PreparedStatement preparedStatement = connection.prepareStatement(updatePlayer);
-        ) {
-            preparedStatement.setString(1, player.name());
-            preparedStatement.setString(2, player.email());
-            preparedStatement.setString(3, player.phoneNumber());
-            preparedStatement.setInt(4, player.division());
-            preparedStatement.setString(5, player.availabilityNotes());
-            preparedStatement.setLong(6, player.id());
+             PreparedStatement preparedStatement = connection.prepareStatement(updatePlayer)) {
+
+            preparedStatement.setString(1, player.getName());
+            preparedStatement.setString(2, player.getEmail());
+            preparedStatement.setString(3, player.getPhoneNumber());
+            preparedStatement.setInt(4, player.getDivision());
+            preparedStatement.setString(5, player.getAvailabilityNotes());
+            preparedStatement.setLong(6, player.getId());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            LOG.error("SQL Exception while attempting to save Player to database with ID: " + player.id());
+            LOG.error("SQL Exception while attempting to save Player to database with ID: " + player.getId());
             H2DatabaseConnection.logSQLException(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while updating Player", e);
         }
