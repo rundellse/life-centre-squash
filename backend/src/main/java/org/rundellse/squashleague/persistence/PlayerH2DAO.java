@@ -1,6 +1,7 @@
 package org.rundellse.squashleague.persistence;
 
 import org.rundellse.squashleague.api.player.PlayerNotFoundException;
+import org.rundellse.squashleague.api.player.dto.DivisionUpdateDTO;
 import org.rundellse.squashleague.model.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,12 @@ public class PlayerH2DAO {
     private final static String updatePlayer = """
             UPDATE PLAYER
             SET NAME = ?, EMAIL = ?, PHONE_NUMBER = ?, DIVISION = ?, AVAILABILITY_NOTES = ?
+            WHERE ID = ?
+            """;
+
+    private final static String updatePlayerDivision = """
+            UPDATE PLAYER
+            SET DIVISION = ?
             WHERE ID = ?
             """;
 
@@ -165,7 +172,7 @@ public class PlayerH2DAO {
     }
 
     public Player updatePlayer(Player player) {
-        LOG.info("Updating player with ID: " + player.getId());
+        LOG.info("Updating player with ID: {}, division: {}", player.getId(), player.getDivision());
 
         try (Connection connection = h2DatabaseConnection.getH2Connection();
              PreparedStatement preparedStatement = connection.prepareStatement(updatePlayer)) {
@@ -185,6 +192,23 @@ public class PlayerH2DAO {
         }
 
         return player;
+    }
+
+    public void updatePlayerDivision(DivisionUpdateDTO divisionUpdate) {
+        LOG.debug("Updating player division with ID: {}, to division: {}", divisionUpdate.id(), divisionUpdate.division());
+
+        try (Connection connection = h2DatabaseConnection.getH2Connection();
+             PreparedStatement preparedStatement = connection.prepareStatement(updatePlayerDivision)) {
+
+            preparedStatement.setInt(1, divisionUpdate.division());
+            preparedStatement.setLong(2, divisionUpdate.id());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            LOG.error("SQL Exception while updating player division with ID: {}, to division: {}", divisionUpdate.id(), divisionUpdate.division());
+            H2DatabaseConnection.logSQLException(e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while updating Player division", e);
+        }
     }
 
     public void deletePlayer(Long id) {
