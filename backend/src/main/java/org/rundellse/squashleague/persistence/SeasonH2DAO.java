@@ -32,21 +32,21 @@ public class SeasonH2DAO {
     private final static String updateSeason = """
             UPDATE SEASON
             SET START_DATE = ?, END_DATE = ?
-            WHERE ID = ?
+            WHERE ID = ?;
             """;
 
     private final static String getSeasonForDate = """
             SELECT ID, START_DATE, END_DATE
             FROM SEASON
             WHERE START_DATE <= ?
-            AND END_DATE > ?
+            AND END_DATE > ?;
             """;
 
     private final static String getLastSeason = """
             SELECT TOP 1
             ID, START_DATE, END_DATE
             FROM SEASON
-            WHERE END_DATE = (SELECT MAX(END_DATE) FROM SEASON)
+            WHERE END_DATE = (SELECT MAX(END_DATE) FROM SEASON);
             """;
 
 

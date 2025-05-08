@@ -46,13 +46,13 @@ public class PlayerH2DAO {
     private final static String updatePlayer = """
             UPDATE PLAYER
             SET NAME = ?, EMAIL = ?, PHONE_NUMBER = ?, DIVISION = ?, AVAILABILITY_NOTES = ?
-            WHERE ID = ?
+            WHERE ID = ?;
             """;
 
     private final static String updatePlayerDivision = """
             UPDATE PLAYER
             SET DIVISION = ?
-            WHERE ID = ?
+            WHERE ID = ?;
             """;
 
     private final static String deletePlayer = """

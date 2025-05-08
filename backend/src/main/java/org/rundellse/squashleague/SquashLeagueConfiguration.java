@@ -1,10 +1,7 @@
 package org.rundellse.squashleague;
 
 import org.rundellse.squashleague.api.player.PlayerRestController;
-import org.rundellse.squashleague.persistence.H2DatabaseConnection;
-import org.rundellse.squashleague.persistence.PlayerH2DAO;
-import org.rundellse.squashleague.persistence.SeasonH2DAO;
-import org.rundellse.squashleague.persistence.SquashMatchH2DAO;
+import org.rundellse.squashleague.persistence.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +14,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -58,6 +57,11 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
+    public UserH2Dao userH2Dao() {
+        return new UserH2Dao();
+    }
+
+    @Bean
     public PlayerRestController playerRestController() {
         return new PlayerRestController(playerH2DAO());
     }
@@ -66,6 +70,11 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -93,11 +102,13 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
         PlayerH2DAO playerH2DAO = playerH2DAO();
         SeasonH2DAO seasonH2DAO = seasonH2DAO();
         SquashMatchH2DAO squashMatchH2DAO = squashMatchH2DAO();
+        UserH2Dao userH2Dao = userH2Dao();
 
         return args -> {
             playerH2DAO.createTable();
             seasonH2DAO.createTable();
             squashMatchH2DAO.createTable();
+            userH2Dao.createTables();
         };
         
     }
