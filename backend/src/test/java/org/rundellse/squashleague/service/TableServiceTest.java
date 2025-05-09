@@ -81,21 +81,21 @@ class TableServiceTest {
 
     @Test
     public void moveObjectInListTest() {
-        Player firstPlayer = new Player(0L, "Player 0", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0, null);
-        Player demotePlayer1 = new Player(2L, "Player 2", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0, null);
-        Player demotePlayer2 = new Player(3L, "Player 3", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0, null);
-        Player promotePlayer1 = new Player(4L, "Player 4", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1, null);
-        Player unmovedPlayer = new Player(5L, "Player 5", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1, null);
+        Player firstPlayer = new Player(0L, "Player 0", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0);
+        Player demotePlayer1 = new Player(2L, "Player 2", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0);
+        Player demotePlayer2 = new Player(3L, "Player 3", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0);
+        Player promotePlayer1 = new Player(4L, "Player 4", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1);
+        Player unmovedPlayer = new Player(5L, "Player 5", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1);
 
         List<Player> testPlayerList = new ArrayList<>(7);
         testPlayerList.add(firstPlayer);
-        testPlayerList.add(new Player(1L, "Player 1", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0, null));
+        testPlayerList.add(new Player(1L, "Player 1", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0));
         testPlayerList.add(demotePlayer1);
         testPlayerList.add(demotePlayer2);
         testPlayerList.add(promotePlayer1);
         testPlayerList.add(unmovedPlayer);
-        testPlayerList.add(new Player(6L, "Player 6", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1, null));
-        testPlayerList.add(new Player(7L, "Player 7", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1, null));
+        testPlayerList.add(new Player(6L, "Player 6", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1));
+        testPlayerList.add(new Player(7L, "Player 7", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1));
 
         tableService.movePlayerInList(testPlayerList, demotePlayer1, 2);
         tableService.movePlayerInList(testPlayerList, demotePlayer2, 2);
@@ -110,12 +110,12 @@ class TableServiceTest {
 
     @Test
     public void moveObjectInListTest_noIndex_noChange() {
-        Player firstPlayer = new Player(0L, "Player 0", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0, null);
+        Player firstPlayer = new Player(0L, "Player 0", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0);
 
         List<Player> testPlayerList = new ArrayList<>(3);
         testPlayerList.add(firstPlayer);
-        testPlayerList.add(new Player(1L, "Player 1", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0, null));
-        testPlayerList.add(new Player(6L, "Player 6", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1, null));
+        testPlayerList.add(new Player(1L, "Player 1", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 0));
+        testPlayerList.add(new Player(6L, "Player 6", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1));
 
         List<Player> testPlayerListCopy = new ArrayList<>(testPlayerList);
         tableService.movePlayerInList(testPlayerList, firstPlayer, 0);
@@ -129,8 +129,8 @@ class TableServiceTest {
         MATCH_ID = 0;
         List<Player> playerListAtEndOfSeason = new ArrayList<>(15);
         for (int i = 0; i < 22; i++) {
-            Player player = new Player((long) i, "Player " + i, GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, i / 5, null);
-            player.setResults(createSquashMatchListWithScore(i, player));
+            Player player = new Player((long) i, "Player " + i, GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, i / 5);
+            player.setHomeMatches(createSquashMatchListWithScore(i, player));
             playerListAtEndOfSeason.add(player);
         }
 

@@ -131,8 +131,7 @@ public class PlayerH2DAO {
                 resultSet.getString("email"),
                 resultSet.getString("phone_number"),
                 resultSet.getString("availability_notes"),
-                resultSet.getInt("division"),
-                null //TODO results
+                resultSet.getInt("division")
         );
     }
 

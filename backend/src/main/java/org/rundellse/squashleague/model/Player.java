@@ -1,49 +1,60 @@
 package org.rundellse.squashleague.model;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
 public class Player {
 
+    @Id
+    @GeneratedValue
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "availability_notes")
     private String availabilityNotes;
 
     private Integer division;
 
-    private List<SquashMatch> results;
+    @OneToMany
+    private List<SquashMatch> homeMatches;
+    @OneToMany
+    private List<SquashMatch> awayMatches;
 
 
     public static Comparator<Player> PLAYER_POINTS_COMPARATOR = (p1, p2) -> {
         Integer p1Total = 0;
         Integer p2Total = 0;
-        for (SquashMatch squashMatch : p1.getResults()) {
-            p1Total += Objects.equals(p1.id, squashMatch.homePlayer().getId()) ? squashMatch.homePlayerPoints() : squashMatch.awayPlayerPoints();
+        for (SquashMatch squashMatch : p1.getHomeMatches()) {
+            p1Total += Objects.equals(p1.id, squashMatch.getHomePlayer().getId()) ? squashMatch.getHomePlayerPoints() : squashMatch.getAwayPlayerPoints();
         }
-        for (SquashMatch squashMatch : p2.getResults()) {
-            p2Total += Objects.equals(p2.id, squashMatch.homePlayer().getId()) ? squashMatch.homePlayerPoints() : squashMatch.awayPlayerPoints();
+        for (SquashMatch squashMatch : p2.getHomeMatches()) {
+            p2Total += Objects.equals(p2.id, squashMatch.getHomePlayer().getId()) ? squashMatch.getHomePlayerPoints() : squashMatch.getAwayPlayerPoints();
         }
         // If p1 is higher it should be placed first. Negative return places p1 first. So if p1 is larger negative should be returned, hence p2-p1.
         return p2Total - p1Total;
     };
 
 
-    public Player(Long id, String name, String email, String phoneNumber, String availabilityNotes, Integer division, List<SquashMatch> results) {
+    public Player(Long id, String name, String email, String phoneNumber, String availabilityNotes, Integer division) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.availabilityNotes = availabilityNotes;
         this.division = division;
-        this.results = results;
     }
 
 
@@ -95,15 +106,26 @@ public class Player {
         this.division = division;
     }
 
-    public List<SquashMatch> getResults() {
-        if (results == null) {
-            results = new ArrayList<>();
+    public List<SquashMatch> getHomeMatches() {
+        if (homeMatches == null) {
+            homeMatches = new ArrayList<>();
         }
-        return results;
+        return homeMatches;
     }
 
-    public void setResults(List<SquashMatch> results) {
-        this.results = results;
+    public void setHomeMatches(List<SquashMatch> homeMatches) {
+        this.homeMatches = homeMatches;
+    }
+
+    public List<SquashMatch> getAwayMatches() {
+        if (awayMatches == null) {
+            awayMatches = new ArrayList<>();
+        }
+        return awayMatches;
+    }
+
+    public void setAwayMatches(List<SquashMatch> awayMatches) {
+        this.awayMatches = awayMatches;
     }
 
     @Override

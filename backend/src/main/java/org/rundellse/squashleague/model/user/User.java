@@ -1,22 +1,31 @@
 package org.rundellse.squashleague.model.user;
 
+import jakarta.persistence.*;
 import org.rundellse.squashleague.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class User {
 
+    @Id
+    @GeneratedValue
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
+    @ManyToMany
     private List<Role> roles = new ArrayList<>();
 
+    @OneToOne
     private Player player;
 
     public User(Long id, String name, String email, String password, List<Role> roles, Player player) {

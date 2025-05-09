@@ -47,13 +47,13 @@ public class SquashMatchH2DAO {
         try (Connection connection = h2DatabaseConnection.getH2Connection();
              PreparedStatement preparedStatement = connection.prepareStatement(insertSquashMatch, Statement.RETURN_GENERATED_KEYS);
         ) {
-            preparedStatement.setLong(1, squashMatch.season().getId());
-            preparedStatement.setLong(2, squashMatch.homePlayer().getId());
-            preparedStatement.setLong(3, squashMatch.awayPlayer().getId());
-            preparedStatement.setInt(4, squashMatch.homePlayerPoints());
-            preparedStatement.setInt(5, squashMatch.awayPlayerPoints());
-            preparedStatement.setInt(6, squashMatch.homePlayerMatchScore());
-            preparedStatement.setInt(7, squashMatch.awayPlayerMatchScore());
+//            preparedStatement.setLong(1, squashMatch.season().getId());
+//            preparedStatement.setLong(2, squashMatch.homePlayer().getId());
+//            preparedStatement.setLong(3, squashMatch.awayPlayer().getId());
+//            preparedStatement.setInt(4, squashMatch.homePlayerPoints());
+//            preparedStatement.setInt(5, squashMatch.awayPlayerPoints());
+//            preparedStatement.setInt(6, squashMatch.homePlayerMatchScore());
+//            preparedStatement.setInt(7, squashMatch.awayPlayerMatchScore());
 
             preparedStatement.executeUpdate();
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
@@ -63,7 +63,7 @@ public class SquashMatchH2DAO {
                 throw new SQLDataException("Not able to get ID for saved SquashMatch");
             }
         } catch (SQLException e) {
-            LOG.error("SQL Exception while attempting to save SquashMatch to database with ID: {}", squashMatch.id());
+//            LOG.error("SQL Exception while attempting to save SquashMatch to database with ID: {}", squashMatch.id());
             H2DatabaseConnection.logSQLException(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while persisting SquashMatch", e);
         }

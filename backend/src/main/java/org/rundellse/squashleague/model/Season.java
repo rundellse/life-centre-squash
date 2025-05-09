@@ -1,11 +1,25 @@
 package org.rundellse.squashleague.model;
 
-import java.time.LocalDate;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.util.Set;
+
+@Entity
 public class Season {
+
+    @Id
+    @GeneratedValue
     private Long id;
+
+    @Column(name = "start_date")
     private LocalDate startDate;
+
+    @Column(name = "end_date")
     private LocalDate endDate;
+
+    @OneToMany(mappedBy = "season")
+    private Set<SquashMatch> squashMatches;
 
     public Season(Long id, LocalDate startDate, LocalDate endDate) {
         this.id = id;
