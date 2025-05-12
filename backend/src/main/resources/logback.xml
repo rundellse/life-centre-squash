@@ -8,8 +8,10 @@
     </appender>
 
     <logger name="org.apache.tomcat" level="INFO" />
+    <logger name="org.rundellse.squashleague" level="TRACE" />
+    <logger name="org.springframework.data." level="TRACE" />
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 

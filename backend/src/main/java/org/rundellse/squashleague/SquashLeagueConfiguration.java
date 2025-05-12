@@ -1,10 +1,10 @@
 package org.rundellse.squashleague;
 
 import org.rundellse.squashleague.api.player.PlayerRestController;
-import org.rundellse.squashleague.persistence.*;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
+@EnableJpaRepositories
 public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
     @Bean
@@ -36,33 +37,8 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public H2DatabaseConnection h2DatabaseConnection() {
-        return new H2DatabaseConnection();
-    }
-
-    @Bean
-    public PlayerH2DAO playerH2DAO() {
-        return new PlayerH2DAO();
-    }
-
-    @Bean
-    public SeasonH2DAO seasonH2DAO() {
-        return new SeasonH2DAO();
-    }
-
-    @Bean
-    public SquashMatchH2DAO squashMatchH2DAO() {
-        return new SquashMatchH2DAO();
-    }
-
-    @Bean
-    public UserH2Dao userH2Dao() {
-        return new UserH2Dao();
-    }
-
-    @Bean
     public PlayerRestController playerRestController() {
-        return new PlayerRestController(playerH2DAO());
+        return new PlayerRestController();
     }
 
 

@@ -21,6 +21,10 @@ public class Role {
     @ManyToMany
     private List<User> users;
 
+
+    public Role() {
+    }
+
     public Role(Long id, String name) {
         this.id = id;
         this.name = name;

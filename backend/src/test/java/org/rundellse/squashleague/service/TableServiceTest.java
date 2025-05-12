@@ -6,8 +6,8 @@ import org.mockito.ArgumentCaptor;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.model.Season;
 import org.rundellse.squashleague.model.SquashMatch;
-import org.rundellse.squashleague.persistence.PlayerH2DAO;
-import org.rundellse.squashleague.persistence.SeasonH2DAO;
+import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.rundellse.squashleague.persistence.SeasonRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 class TableServiceTest {
@@ -28,34 +29,34 @@ class TableServiceTest {
 
     private TableService tableService;
 
-    private SeasonH2DAO seasonH2DAO;
+    private SeasonRepository seasonRepository;
 
-    private PlayerH2DAO playerH2DAO;
+    private PlayerRepository playerRepository;
 
     @BeforeEach
     public void beforeEach() {
         tableService = new TableService();
-        seasonH2DAO = mock(SeasonH2DAO.class);
-        playerH2DAO = mock(PlayerH2DAO.class);
-        tableService.setSeasonH2DAO(seasonH2DAO);
-        tableService.setPlayerH2DAO(playerH2DAO);
+        seasonRepository = mock(SeasonRepository.class);
+        playerRepository = mock(PlayerRepository.class);
+        tableService.setSeasonH2DAO(seasonRepository);
+        tableService.setPlayerH2DAO(playerRepository);
     }
 
 
     @Test
     public void endCurrentSeasonTest_happyPath() {
         // Probably should have just been an Integration test.
-        when(seasonH2DAO.getSeasonForDate(LocalDate.now())).thenReturn(PREVIOUS_SEASON);
+        when(seasonRepository.findSeasonForDate(LocalDate.now())).thenReturn(PREVIOUS_SEASON);
         List<Player> endSeasonPlayerList = populateEndSeasonPlayerList();
-        when(playerH2DAO.getAllPlayers()).thenReturn(endSeasonPlayerList);
-        when(seasonH2DAO.persistSeason(any(Season.class))).thenReturn(3L);
+        when(playerRepository.findAll()).thenReturn(endSeasonPlayerList);
+        when(seasonRepository.save(any(Season.class))).thenReturn(new Season(3L, LocalDate.now(), LocalDate.now().plusDays(7)));
 
         Map<Integer, List<Player>> result = tableService.endSeasonNewSeason(LocalDate.now().plusDays(28));
 
         ArgumentCaptor<Player> playerArgumentCaptor = ArgumentCaptor.forClass(Player.class);
-        verify(playerH2DAO, times(22)).updatePlayer(playerArgumentCaptor.capture());
-        // A bit of a silly list, but represents proper working, order of each division reversed, then the top two moved into division above,
-        // bottom two moved into division below, with divisions of 5 to start this results in order looking like (previous division of player shown)
+        verify(playerRepository, times(22)).save(playerArgumentCaptor.capture());
+        // A bit of a silly list, but it represents proper working: The order of each division reversed, then the top two moved into division above,
+        // bottom two moved into division below, with divisions of 5 as a starting point this results in order looking like (previous division of player shown)
         // { 0, 0, 0, 1, 1, 0, 0, 1, 2, 2, 1, 1, 2, 3, 3, 2, 2 etc... }, essentially one player per mid-table division stays in the same spot.
         List<Long> expectedResultOrder = Arrays.asList(4L, 3L, 2L, 9L, 8L, 1L, 0L, 7L, 14L, 13L, 6L, 5L, 12L, 19L, 18L, 11L, 10L, 17L, 20L, 21L, 16L, 15L);
         List<Player> capturedPlayers = playerArgumentCaptor.getAllValues();
@@ -65,14 +66,13 @@ class TableServiceTest {
         assertEquals(expectedResultOrder, result.values().stream().flatMap(List::stream).map(Player::getId).collect(Collectors.toList()), "Returned divisions player orders should match expected result.");
 
         ArgumentCaptor<Season> seasonArgumentCaptor = ArgumentCaptor.forClass(Season.class);
-        verify(seasonH2DAO).persistSeason(seasonArgumentCaptor.capture());
-        Season capturedSeason = seasonArgumentCaptor.getValue();
-        assertEquals(3L, capturedSeason.getId());
+        verify(seasonRepository, times(2)).save(seasonArgumentCaptor.capture());
+        Season capturedSeason = seasonArgumentCaptor.getAllValues().get(0);
+        assertNull(capturedSeason.getId()); // When passed to save the ID is null, save provides ID.
         assertEquals(LocalDate.now(), capturedSeason.getStartDate());
         assertEquals(LocalDate.now().plusDays(28), capturedSeason.getEndDate());
 
-        verify(seasonH2DAO).updateSeason(seasonArgumentCaptor.capture());
-        capturedSeason = seasonArgumentCaptor.getValue();
+        capturedSeason = seasonArgumentCaptor.getAllValues().get(1);
         assertEquals(2L, capturedSeason.getId());
         assertEquals(LocalDate.now().minusDays(14), capturedSeason.getStartDate());
         assertEquals(LocalDate.now(), capturedSeason.getEndDate());

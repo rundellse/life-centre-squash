@@ -8,32 +8,36 @@ import java.util.List;
 @Entity
 public class SquashMatch {
 
-        @Id
-        @GeneratedValue
-        private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-        @ManyToOne
-        private Season season;
+    @ManyToOne
+    private Season season;
 
-        @OneToOne
-        @MapsId
-        private Player homePlayer;
-        @OneToOne
-        @MapsId
-        private Player awayPlayer;
+    @OneToOne
+    @MapsId
+    private Player homePlayer;
+    @OneToOne
+    @MapsId
+    private Player awayPlayer;
 
-        @Column(name = "home_player_points")
-        private Integer homePlayerPoints;
-        @Column(name = "away_player_points")
-        private Integer awayPlayerPoints;
+    @Column(name = "home_player_points")
+    private Integer homePlayerPoints;
+    @Column(name = "away_player_points")
+    private Integer awayPlayerPoints;
 
-        @Column(name = "home_player_match_score")
-        private Integer homePlayerMatchScore;
-        @Column(name = "away_player_match_score")
-        private Integer awayPlayerMatchScore;
+    @Column(name = "home_player_match_score")
+    private Integer homePlayerMatchScore;
+    @Column(name = "away_player_match_score")
+    private Integer awayPlayerMatchScore;
 
-        @Transient
-        private List<SquashGame> squashGames;
+    @Transient
+    private List<SquashGame> squashGames;
+
+
+    public SquashMatch() {
+    }
 
     public SquashMatch(Long id, Season season, Player homePlayer, Player awayPlayer, Integer homePlayerPoints, Integer awayPlayerPoints, Integer homePlayerMatchScore, Integer awayPlayerMatchScore, List<SquashGame> games) {
         this.id = id;
@@ -47,16 +51,6 @@ public class SquashMatch {
         this.squashGames = games;
     }
 
-    public SquashMatch(Long id, Season season, Player homePlayer, Player awayPlayer, Integer homePlayerPoints, Integer awayPlayerPoints, Integer homePlayerMatchScore, Integer awayPlayerMatchScore) {
-        this.id = id;
-        this.season = season;
-        this.homePlayer = homePlayer;
-        this.awayPlayer = awayPlayer;
-        this.homePlayerPoints = homePlayerPoints;
-        this.awayPlayerPoints = awayPlayerPoints;
-        this.homePlayerMatchScore = homePlayerMatchScore;
-        this.awayPlayerMatchScore = awayPlayerMatchScore;
-    }
 
     public Long getId() {
         return id;

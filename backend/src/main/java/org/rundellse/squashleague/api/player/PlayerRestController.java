@@ -2,15 +2,20 @@ package org.rundellse.squashleague.api.player;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
-import org.rundellse.squashleague.persistence.PlayerH2DAO;
+import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 
 @RestController
@@ -18,13 +23,10 @@ import java.util.Map;
 @CrossOrigin
 public class PlayerRestController {
 
-//    private static Logger LOG = LoggerFactory.getLogger(PlayerRestController.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerRestController.class.getName());
 
-    private final PlayerH2DAO playerH2DAO;
-
-    public PlayerRestController(PlayerH2DAO playerH2DAO) {
-        this.playerH2DAO = playerH2DAO;
-    }
+    @Autowired
+    private PlayerRepository playerRepository;
 
 
     @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
@@ -33,34 +35,77 @@ public class PlayerRestController {
     }
 
     @PostMapping("/players")
-    public Map<Long, Player> newPlayer(@RequestBody Player player) {
-        Map<Long, Player> playerResponse = new HashMap<>();
-        playerResponse.put(playerH2DAO.persistPlayer(player), player);
-        return playerResponse;
+    @ResponseStatus(HttpStatus.CREATED)
+    public void newPlayer(@RequestBody Player player) {
+        LOG.debug("Attempting to persist new Player");
+        playerRepository.save(player);
+        LOG.info("Persisted new Player, ID: {}", player.getId());
     }
 
     @PostMapping("/players/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public Player updatePlayer(@PathVariable Long id, @RequestBody Player player) {
+        LOG.debug("Updating player with ID: {}", id);
         player.setId(id);
-        return playerH2DAO.updatePlayer(player);
+        return playerRepository.save(player);
     }
 
     @DeleteMapping("/players/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deletePlayer(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable Long id) {
-        playerH2DAO.deletePlayer(id);
+        LOG.info("Deleting Player with ID: {}", id);
+        playerRepository.deleteById(id);
     }
 
     @GetMapping("/players")
-    @CrossOrigin
-    public List<Player> retrieveAllPlayers(HttpServletResponse httpServletResponse) {
-        return playerH2DAO.getAllPlayers();
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<TablePlayerDTO> retrieveAllPlayers(HttpServletResponse httpServletResponse) {
+        LOG.trace("Getting all Players");
+
+        List<TablePlayerDTO> allTablePlayers = new ArrayList<>();
+        for (Player player : playerRepository.findAll()) {
+            if (player.isAnonymised()) {
+                allTablePlayers.add(convertPlayerToAnonymousTablePlayerDTO(player));
+            } else {
+                allTablePlayers.add(convertPlayerToTablePlayerDTO(player));
+            }
+        }
+        return allTablePlayers;
+    }
+
+    private TablePlayerDTO convertPlayerToTablePlayerDTO(Player player) {
+        return new TablePlayerDTO(
+                player.getId(),
+                player.getName(),
+                player.getEmail(),
+                player.getPhoneNumber(),
+                player.getAvailabilityNotes(),
+                player.getDivision(),
+                player.isRedFlagged()
+        );
+    }
+
+    private TablePlayerDTO convertPlayerToAnonymousTablePlayerDTO(Player player) {
+        return new TablePlayerDTO(
+                player.getId(),
+                "Anonymised Player",
+                "See printed sheet",
+                "See printed sheet",
+                "",
+                player.getDivision(),
+                false
+        );
     }
 
     @GetMapping("/players/{id}")
-    @CrossOrigin
+    @ResponseStatus(HttpStatus.OK)
     public Player retrievePlayer(@PathVariable Long id) {
-        return playerH2DAO.getPlayer(id);
+        Optional<Player> player = playerRepository.findById(id);
+        if (player.isEmpty()) {
+            LOG.warn("Attempted to fetch Player with ID: {}, but no Player found in repository.", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return player.get();
     }
 
 }

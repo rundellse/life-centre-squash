@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "site_user")
 public class User {
 
     @Id
@@ -28,19 +29,8 @@ public class User {
     @OneToOne
     private Player player;
 
-    public User(Long id, String name, String email, String password, List<Role> roles, Player player) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-        this.player = player;
-    }
 
-    public User(Long id, String name, String email) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
+    public User() {
     }
 
     public Long getId() {

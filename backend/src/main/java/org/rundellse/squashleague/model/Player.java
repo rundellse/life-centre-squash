@@ -28,11 +28,17 @@ public class Player {
 
     private Integer division;
 
+    private boolean isAnonymised = false;
+
+    private boolean isRedFlagged = false;
+
     @OneToMany
     private List<SquashMatch> homeMatches;
     @OneToMany
     private List<SquashMatch> awayMatches;
 
+    public Player() {
+    }
 
     public static Comparator<Player> PLAYER_POINTS_COMPARATOR = (p1, p2) -> {
         Integer p1Total = 0;
@@ -104,6 +110,22 @@ public class Player {
 
     public void setDivision(Integer division) {
         this.division = division;
+    }
+
+    public boolean isAnonymised() {
+        return isAnonymised = false;
+    }
+
+    public void setAnonymised(boolean anonymised) {
+        isAnonymised = anonymised;
+    }
+
+    public boolean isRedFlagged() {
+        return isRedFlagged;
+    }
+
+    public void setRedFlagged(boolean redFLagged) {
+        isRedFlagged = redFLagged;
     }
 
     public List<SquashMatch> getHomeMatches() {

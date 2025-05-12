@@ -2,8 +2,8 @@ package org.rundellse.squashleague.service;
 
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.model.Season;
-import org.rundellse.squashleague.persistence.PlayerH2DAO;
-import org.rundellse.squashleague.persistence.SeasonH2DAO;
+import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.rundellse.squashleague.persistence.SeasonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +19,18 @@ public class TableService {
     private static final Logger LOG = LoggerFactory.getLogger(TableService.class.getName());
 
     @Autowired
-    private PlayerH2DAO playerH2DAO;
+    private PlayerRepository playerRepository;
 
     @Autowired
-    private SeasonH2DAO seasonH2DAO;
+    private SeasonRepository seasonRepository;
 
 
     public Map<Integer, List<Player>> endSeasonNewSeason(LocalDate newSeasonEndDate) {
-        LOG.debug("Ending Season for current date");
-        Season endingSeason = seasonH2DAO.getSeasonForDate(LocalDate.now());
+        LOG.info("Ending Season for current date");
+        Season endingSeason = seasonRepository.findSeasonForDate(LocalDate.now());
         if (endingSeason == null) {
             LOG.info("No Season found for current date, getting latest season");
-            endingSeason = seasonH2DAO.getLastSeason();
+            endingSeason = seasonRepository.findFirstByOrderByEndDateDesc();
             if (endingSeason == null) {
                 LOG.warn("No Season found in DB. Creating new Season, no end-season done.");
                 createNewSeason(newSeasonEndDate);
@@ -42,7 +42,7 @@ public class TableService {
         Season newSeason = createNewSeason(newSeasonEndDate);
 
         endingSeason.setEndDate(LocalDate.now());
-        seasonH2DAO.updateSeason(endingSeason);
+        seasonRepository.save(endingSeason);
 
         return newDivisions;
     }
@@ -55,7 +55,7 @@ public class TableService {
 
     private Map<Integer, List<Player>> getCurrentDivisions() {
         Map<Integer, List<Player>> endingSeasonDivisions = new HashMap<>();
-        List<Player> originalPlayerList = playerH2DAO.getAllPlayers();
+        Iterable<Player> originalPlayerList = playerRepository.findAll();
 
         for (Player player : originalPlayerList) {
             List<Player> division = endingSeasonDivisions.get(player.getDivision());
@@ -128,7 +128,7 @@ public class TableService {
                 Player player = orderedPlayersList.get(runningPlayerTotal);
                 newDivision.add(player);
                 player.setDivision(i);
-                playerH2DAO.updatePlayer(player);
+                playerRepository.save(player);
                 runningPlayerTotal++;
             }
         }
@@ -152,24 +152,22 @@ public class TableService {
             destinationIndex = 0;
         }
 
-        list.add(indexOfObject + indexChange, player);
+        list.add(destinationIndex, player);
         // If object is added above previous index then original object is bumped up one. If added below original is unmoved.
         list.remove(indexChange > 0 ? indexOfObject : indexOfObject + 1);
     }
 
     private Season createNewSeason(LocalDate newSeasonEndDate) {
         Season newSeason = new Season(LocalDate.now(), newSeasonEndDate);
-        long seasonId = seasonH2DAO.persistSeason(newSeason);
-        newSeason.setId(seasonId);
-        return newSeason;
+        return seasonRepository.save(newSeason);
     }
 
 
-    void setPlayerH2DAO(PlayerH2DAO playerH2DAO) {
-        this.playerH2DAO = playerH2DAO;
+    void setPlayerH2DAO(PlayerRepository playerH2DAO) {
+        this.playerRepository = playerH2DAO;
     }
 
-    void setSeasonH2DAO(SeasonH2DAO seasonH2DAO) {
-        this.seasonH2DAO = seasonH2DAO;
+    void setSeasonH2DAO(SeasonRepository seasonH2DAO) {
+        this.seasonRepository = seasonH2DAO;
     }
 }

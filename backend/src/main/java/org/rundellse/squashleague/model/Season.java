@@ -18,8 +18,11 @@ public class Season {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "season")
+    @OneToMany
     private Set<SquashMatch> squashMatches;
+
+    public Season() {
+    }
 
     public Season(Long id, LocalDate startDate, LocalDate endDate) {
         this.id = id;
