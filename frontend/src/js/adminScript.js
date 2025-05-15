@@ -20,12 +20,12 @@ function addPlayer() {
     const newPhone = document.getElementById('phone-field').value;
     const newDivision = document.getElementById('division-field').value;
     const newAvailability = document.getElementById('availability-field').value;
+    const newAnonymise = document.getElementById('anonymise-field').value;
 
     if (newName === null || newName === '') {
         alert('Name required for new Player');
         return;
-    }
-    if (newDivision === null || newDivision === '') {
+    } else if (newDivision === null || newDivision === '') {
         alert('Division required for new Player');
         return;
     }
@@ -41,7 +41,8 @@ function addPlayer() {
             email: newEmail,
             phoneNumber: newPhone,
             division: newDivision,
-            availabilityNotes: newAvailability
+            availabilityNotes: newAvailability,
+            anonymise: newAnonymise
         })
     })
     .then(() => {
@@ -119,6 +120,8 @@ function updatePlayerLoad() {
     const updatePhone = document.getElementById('phone-update-field');
     const updateDivision = document.getElementById('division-update-field');
     const updateAvailability = document.getElementById('availability-update-field');
+    const updateRedFlagged = document.getElementById('red-flagged-update-field');
+    const updateAnonymise = document.getElementById('anonymise-update-field');
 
     const url = 'http://localhost:8080/api/players/' + document.getElementById('update-player-select').value;
 
@@ -136,6 +139,8 @@ function updatePlayerLoad() {
         updatePhone.value = player.phoneNumber;
         updateDivision.value = player.division;
         updateAvailability.innerHTML = player.availabilityNotes;
+        updateRedFlagged.checked = player.redFlagged;
+        updateAnonymise.checked = player.anonymise;
     })
     .catch(error => console.error('Error while fetching player details:', error));
 }
@@ -146,6 +151,8 @@ function updatePlayer() {
     const updatePhone = document.getElementById('phone-update-field').value;
     const updateDivision = document.getElementById('division-update-field').value;
     const updateAvailability = document.getElementById('availability-update-field').value;
+    const updateRedFlagged = document.getElementById('red-flagged-update-field').checked;
+    const updateAnonymise = document.getElementById('anonymise-update-field').checked;
 
     const url = 'http://localhost:8080/api/players/' + document.getElementById('update-player-select').value;
     fetch(url, {
@@ -160,7 +167,9 @@ function updatePlayer() {
             email: updateEmail,
             phoneNumber: updatePhone,
             division: updateDivision,
-            availabilityNotes: updateAvailability
+            availabilityNotes: updateAvailability,
+            redFlagged: updateRedFlagged,
+            anonymise: updateAnonymise
         })
     })
     .then(() => {

@@ -28,9 +28,9 @@ public class Player {
 
     private Integer division;
 
-    private boolean isAnonymised = false;
+    private boolean isRedFlagged;
 
-    private boolean isRedFlagged = false;
+    private boolean isAnonymised;
 
     @OneToMany
     private List<SquashMatch> homeMatches;
@@ -112,20 +112,20 @@ public class Player {
         this.division = division;
     }
 
-    public boolean isAnonymised() {
-        return isAnonymised = false;
-    }
-
-    public void setAnonymised(boolean anonymised) {
-        isAnonymised = anonymised;
-    }
-
     public boolean isRedFlagged() {
         return isRedFlagged;
     }
 
     public void setRedFlagged(boolean redFLagged) {
         isRedFlagged = redFLagged;
+    }
+
+    public boolean isAnonymised() {
+        return isAnonymised;
+    }
+
+    public void setAnonymised(boolean anonymised) {
+        isAnonymised = anonymised;
     }
 
     public List<SquashMatch> getHomeMatches() {

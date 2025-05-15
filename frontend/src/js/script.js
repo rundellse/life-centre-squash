@@ -70,6 +70,7 @@ function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTabl
     const letterCell = `<td>${String.fromCharCode(65 + index)}</td>`
 
     const row = document.createElement('tr');
+
     const nameCell = document.createElement('th');
     nameCell.className = 'name-div';
     nameCell.innerText = player.name;
@@ -87,12 +88,20 @@ function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTabl
     // nameCell.appendChild(availabilityPopup);
     row.appendChild(nameCell);
 
-    const playerDetails = `
-    <th class="details-cell">
-        <div class="phone-number-div">phone number</div>
-        <div class="email-div">email@address.com</div>
-    </th>
-    `;
+    const detailsCell = document.createElement('th');
+    detailsCell.className = 'details-cell';
+
+    const phoneNumberDiv = document.createElement('div');
+    phoneNumberDiv.className = 'phone-number-div';
+    phoneNumberDiv.innerHTML = player.phoneNumber;
+
+    const emailDiv = document.createElement('div');
+    emailDiv.className = 'email-div';
+    emailDiv.innerHTML = player.email;
+
+    detailsCell.appendChild(phoneNumberDiv);
+    detailsCell.appendChild(emailDiv);
+    row.appendChild(detailsCell);
 
     let gameCells = '';
     for (let i = 0; i < divisionLength; i++) {
@@ -103,7 +112,7 @@ function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTabl
         }
     }
 
-    row.innerHTML = letterCell + row.innerHTML + playerDetails + gameCells;
+    row.innerHTML = letterCell + row.innerHTML + gameCells;
     // row.getElementsByClassName('name-div');
     divisionTable.appendChild(row);
 }

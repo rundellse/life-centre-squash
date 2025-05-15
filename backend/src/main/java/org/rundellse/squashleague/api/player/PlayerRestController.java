@@ -2,6 +2,7 @@ package org.rundellse.squashleague.api.player;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.rundellse.squashleague.api.player.dto.PlayerDetailsDTO;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerRepository;
@@ -44,10 +45,29 @@ public class PlayerRestController {
 
     @PostMapping("/players/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Player updatePlayer(@PathVariable Long id, @RequestBody Player player) {
+    public Player updatePlayer(@PathVariable Long id, @RequestBody PlayerDetailsDTO playerDetailsDTO) {
         LOG.debug("Updating player with ID: {}", id);
-        player.setId(id);
-        return playerRepository.save(player);
+
+        Optional<Player> playerOptional = playerRepository.findById(id);
+        if (playerOptional.isEmpty()) {
+            LOG.error("Player with ID: {} not found. Cannot be updated", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        Player updatedPlayer = playerOptional.get();
+        updatePlayerFromPlayerDetailsDTO(updatedPlayer, playerDetailsDTO);
+        playerRepository.save(updatedPlayer);
+        return updatedPlayer;
+    }
+
+    private void updatePlayerFromPlayerDetailsDTO(Player updatedPlayer, PlayerDetailsDTO playerDetailsDTO) {
+        updatedPlayer.setName(playerDetailsDTO.name());
+        updatedPlayer.setEmail(playerDetailsDTO.email());
+        updatedPlayer.setPhoneNumber(playerDetailsDTO.phoneNumber());
+        updatedPlayer.setAvailabilityNotes(playerDetailsDTO.availabilityNotes());
+        updatedPlayer.setDivision(playerDetailsDTO.division());
+        updatedPlayer.setAnonymised(playerDetailsDTO.anonymise());
+        updatedPlayer.setRedFlagged(playerDetailsDTO.redFlagged());
     }
 
     @DeleteMapping("/players/{id}")
@@ -88,7 +108,7 @@ public class PlayerRestController {
     private TablePlayerDTO convertPlayerToAnonymousTablePlayerDTO(Player player) {
         return new TablePlayerDTO(
                 player.getId(),
-                "Anonymised Player",
+                "Anonymous Player",
                 "See printed sheet",
                 "See printed sheet",
                 "",
@@ -99,13 +119,27 @@ public class PlayerRestController {
 
     @GetMapping("/players/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Player retrievePlayer(@PathVariable Long id) {
+    public PlayerDetailsDTO retrievePlayer(@PathVariable Long id) {
+        LOG.trace("Getting player details with ID: {}", id);
         Optional<Player> player = playerRepository.findById(id);
         if (player.isEmpty()) {
-            LOG.warn("Attempted to fetch Player with ID: {}, but no Player found in repository.", id);
+            LOG.error("Attempted to fetch Player with ID: {}, but no Player found in repository.", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return player.get();
+
+        return convertPlayerToPlayerDetailsDTO(player.get());
     }
 
+    private PlayerDetailsDTO convertPlayerToPlayerDetailsDTO(Player player) {
+        return new PlayerDetailsDTO(
+                player.getId(),
+                player.getName(),
+                player.getEmail(),
+                player.getPhoneNumber(),
+                player.getAvailabilityNotes(),
+                player.getDivision(),
+                player.isAnonymised(),
+                player.isRedFlagged()
+        );
+    }
 }

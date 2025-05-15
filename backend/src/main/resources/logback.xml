@@ -9,7 +9,9 @@
 
     <logger name="org.apache.tomcat" level="INFO" />
     <logger name="org.rundellse.squashleague" level="TRACE" />
-    <logger name="org.springframework.data." level="TRACE" />
+    <logger name="org.springframework.data" level="TRACE" />
+<!--    <logger name="org.hibernate.SQL" level="TRACE" />-->
+<!--    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" />-->
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />

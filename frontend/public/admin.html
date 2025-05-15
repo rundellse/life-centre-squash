@@ -20,19 +20,25 @@
         <form id="add-player-form">
             <h2>Add New Player</h2>
             <label>Name</label>
-            <input id="name-field" type="text"></input>
+            <input id="name-field" type="text"/>
             <br/><br/>
             <label>Phone Number</label>
-            <input id="phone-field" type="text"></input>
+            <input id="phone-field" type="text"/>
             <br/><br/>
             <label>Email</label>
-            <input id="email-field" type="text"></input>
+            <input id="email-field" type="text"/>
             <br/><br/>
             <label>Division</label>
-            <input id="division-field" type="number"></input>
+            <input id="division-field" type="number"/>
             <br/><br/>
             <label>Availability Notes</label>
             <textarea id="availability-field" type="text"></textarea>
+            <br/><br/>
+            <label>Red-Flagged</label>
+            <input id="red-flagged-field" type="checkbox"/>
+            <br/><br/>
+            <label>Anonymise Player</label>
+            <input id="anonymise-field" type="checkbox"/>
             <button type="button" onclick="" id="new-player-button">Save Player</button>
         </form>
         <hr/>
@@ -68,6 +74,13 @@
             <br/><br/>
             <label>Availability Notes</label>
             <textarea id="availability-update-field" type="text" autocomplete="off"></textarea>
+            <br/><br/>
+            <label>Red-Flagged</label>
+            <input id="red-flagged-update-field" type="checkbox"/>
+            <br/><br/>
+            <label>Anonymise Player</label>
+            <input id="anonymise-update-field" type="checkbox"/>
+
             <button type="button" onclick="" id="update-player-button">Update Player</button>
         </form>
     </body>

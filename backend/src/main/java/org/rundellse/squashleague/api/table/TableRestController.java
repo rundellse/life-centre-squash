@@ -1,6 +1,6 @@
 package org.rundellse.squashleague.api.table;
 
-import org.rundellse.squashleague.api.player.dto.DivisionUpdateDTO;
+import org.rundellse.squashleague.api.player.dto.BulkPlayerUpdateDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.service.TableService;
@@ -34,11 +34,11 @@ public class TableRestController {
 
     @PostMapping("/table/update-table")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateTable(@RequestBody DivisionUpdateDTO[] updates) {
+    public void updateTable(@RequestBody BulkPlayerUpdateDTO[] updates) {
         LOG.debug("Updating divisions across the tables");
         Set<Player> updatedPlayers = new HashSet<>();
 
-        for (DivisionUpdateDTO update : updates) {
+        for (BulkPlayerUpdateDTO update : updates) {
             LOG.trace("Updating player with ID: {}, to Division: {}", update.id(), update.division());
             Optional<Player> playerOptional = playerRepository.findById(update.id());
             if (playerOptional.isEmpty()) {
