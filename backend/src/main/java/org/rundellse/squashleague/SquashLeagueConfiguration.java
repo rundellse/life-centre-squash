@@ -93,13 +93,13 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(requestMatcherRegistry ->
-                                requestMatcherRegistry
-                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                        .requestMatchers("/login").permitAll()
-                                        .requestMatchers("/error").permitAll()
-                                        .requestMatchers(HttpMethod.GET, "/players").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
+                        requestMatcherRegistry
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/login").permitAll()
+                                .requestMatchers("/error").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/players").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
 //                                        .requestMatchers(HttpMethod.POST, "/players").hasAuthority(Roles.ROLE_ADMIN.toString())
-                                        .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
+                                .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
                 )
                 .logout(logoutConfigurer ->
                         logoutConfigurer
