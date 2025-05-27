@@ -1,0 +1,32 @@
+
+const loginUrl = 'http://localhost:8080/api/login';
+
+document.addEventListener('DOMContentLoaded', function() {
+    const loginButton = document.getElementById("login-button");
+    loginButton.onclick = submitLogin;
+
+});
+
+function submitLogin() {
+    const email = document.getElementById("email-field").value;
+    const password = document.getElementById("password-field").value;
+
+    if (email === null || email === '' || password === null || password === '') {
+        alert("Please complete login form");
+        return;
+    }
+
+    fetch(loginUrl, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password
+        })
+    })
+    .then(response => response.json())
+    .catch(error => console.error('Error during login: ', error));
+}

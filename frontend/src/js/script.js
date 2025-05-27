@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const divisions = [];
 
     fetch(apiUrl, {
-        // credentials: 'include',
         method: 'GET',
+        credentials: 'include',
         headers: {
             'Authorization': 'Basic ' + credentials
         }

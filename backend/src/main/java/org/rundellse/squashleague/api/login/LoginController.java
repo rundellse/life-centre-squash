@@ -36,7 +36,7 @@ public class LoginController {
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email(), loginRequest.password());
         Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
 
-        // Set authentication in security context and session
+        // Set authentication in security context and session i.e. against the JSESSIONID.
         SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
         request.getSession(true).setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 

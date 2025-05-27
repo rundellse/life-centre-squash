@@ -49,12 +49,6 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
         return new PlayerRestController();
     }
 
-
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS);
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -79,7 +73,6 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        //TODO proper cors mapping
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
@@ -95,37 +88,23 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         //TODO Implement csrf, disabled for now.
         http.csrf(AbstractHttpConfigurer::disable)
-//                .cors(request -> {
-//                    CorsConfiguration corsConfiguration = request.configurationSource(CorsConfigurationSource);// new CorsConfiguration();
-//                    corsConfiguration.addAllowedMethod(HttpMethod.OPTIONS);
-//                    corsConfiguration.addAllowedOriginPattern("*");
-//                })
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
-                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        httpSecuritySessionManagementConfigurer
+                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(requestMatcherRegistry ->
-                    requestMatcherRegistry
-                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                            .requestMatchers("/login").permitAll()
-                            .requestMatchers("/error").permitAll()
-//                            .requestMatchers("/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
-                            .requestMatchers(HttpMethod.GET, "/players").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
-                            .requestMatchers(HttpMethod.POST, "/players").hasAuthority(Roles.ROLE_ADMIN.toString())
-                            .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
-//                            .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                                requestMatcherRegistry
+                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                        .requestMatchers("/login").permitAll()
+                                        .requestMatchers("/error").permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/players").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
+//                                        .requestMatchers(HttpMethod.POST, "/players").hasAuthority(Roles.ROLE_ADMIN.toString())
+                                        .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
                 )
-//                .formLogin(formLoginConfigurer ->
-//                    formLoginConfigurer
-//                            .loginPage("/frontend/public/login.html")
-//                            .loginProcessingUrl("/frontend/public/login.html")
-//                            .defaultSuccessUrl("/frontend/public/index")
-//                            .permitAll()
-//                )
                 .logout(logoutConfigurer ->
-                        logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                                .permitAll()
-                )
-        ;
+                        logoutConfigurer
+                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")).permitAll()
+                );
         return http.build();
     }
 
