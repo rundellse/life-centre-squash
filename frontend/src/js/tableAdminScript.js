@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         newSeasonButton.onclick = newSeason;
 });
 
+
 function addPlayerRowToDivisionTable(index, player, divisionTable) {
     const letterCell = `<td>${String.fromCharCode(65 + index)}</td>`
 
@@ -78,12 +79,21 @@ function addPlayerRowToDivisionTable(index, player, divisionTable) {
 
     row.appendChild(nameCell);
 
-    const playerDetails = `
-    <th class="details-cell">
-        <div class="phone-number-div">phone number</div>
-        <div class="email-div">email@address.com</div>
-    </th>
-    `;
+     const detailsCell = document.createElement('th');
+    detailsCell.className = 'details-cell';
+
+    const phoneNumberDiv = document.createElement('div');
+    phoneNumberDiv.className = 'phone-number-div';
+    phoneNumberDiv.innerHTML = player.phoneNumber;
+
+    const emailDiv = document.createElement('div');
+    emailDiv.className = 'email-div';
+    emailDiv.innerHTML = player.email;
+
+    detailsCell.appendChild(phoneNumberDiv);
+    detailsCell.appendChild(emailDiv);
+    row.appendChild(detailsCell);
+
 
     const promoteButtonCell = document.createElement('td');
     const promoteButton = document.createElement('button');

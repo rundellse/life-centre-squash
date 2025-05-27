@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<body>
-    <h1>Login Page Uh Oh</h1>
-</body>
+    <!-- Based on https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/form.html#servlet-authentication-form-custom -->
+	<head>
+		<title>Please Log In</title>
+	</head>
+	<body>
+		<nav>
+            <a href="index.html">League</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="admin.html">Admin</a>
+            <a href="login.html">Login</a>
+        </nav>
+		<h1>Please Log In</h1>
+		<form>
+			<div>
+			<input id="email-field" type="text" name="email" placeholder="email"/>
+			</div>
+			<div>
+			<input id="password-field" type="password" name="password" placeholder="Password"/>
+			</div>
+			<input id="login-button" type="button" value="Log in" />
+		</form>
+	</body>
+	<script src="../src/js/loginScript.js"></script>
 </html>

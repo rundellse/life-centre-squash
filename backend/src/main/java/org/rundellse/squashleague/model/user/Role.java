@@ -1,9 +1,6 @@
 package org.rundellse.squashleague.model.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import org.hibernate.annotations.NaturalId;
 
 import java.util.List;
@@ -16,6 +13,7 @@ public class Role {
     private Long id;
 
     @NaturalId
+    @Column(nullable = false)
     private String name;
 
     @ManyToMany
@@ -25,8 +23,7 @@ public class Role {
     public Role() {
     }
 
-    public Role(Long id, String name) {
-        this.id = id;
+    public Role(String name) {
         this.name = name;
     }
 
