@@ -1,11 +1,11 @@
 package org.rundellse.squashleague.api.player;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.rundellse.squashleague.api.player.dto.PlayerDetailsDTO;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.rundellse.squashleague.service.PlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -28,11 +26,8 @@ public class PlayerRestController {
     @Autowired
     private PlayerRepository playerRepository;
 
-
-//    @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
-//    public ResponseEntity<Object> handleOptionsRequest() {
-//        return ResponseEntity.ok().build();
-//    }
+    @Autowired
+    private PlayerService playerService;
 
     @PostMapping("/players")
     @ResponseStatus(HttpStatus.CREATED)
@@ -71,49 +66,16 @@ public class PlayerRestController {
 
     @DeleteMapping("/players/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deletePlayer(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable Long id) {
+    public void deletePlayer(@PathVariable long id) {
         LOG.info("Deleting Player with ID: {}", id);
         playerRepository.deleteById(id);
     }
 
     @GetMapping("/players")
     @ResponseStatus(HttpStatus.OK)
-    public Iterable<TablePlayerDTO> retrieveAllPlayers(HttpServletResponse httpServletResponse) {
+    public Iterable<TablePlayerDTO> retrieveAllPlayers(HttpServletRequest httpServletRequest) {
         LOG.trace("Getting all Players");
-
-        List<TablePlayerDTO> allTablePlayers = new ArrayList<>();
-        for (Player player : playerRepository.findAll()) {
-            if (player.isAnonymised()) {
-                allTablePlayers.add(convertPlayerToAnonymousTablePlayerDTO(player));
-            } else {
-                allTablePlayers.add(convertPlayerToTablePlayerDTO(player));
-            }
-        }
-        return allTablePlayers;
-    }
-
-    private TablePlayerDTO convertPlayerToTablePlayerDTO(Player player) {
-        return new TablePlayerDTO(
-                player.getId(),
-                player.getName(),
-                player.getEmail(),
-                player.getPhoneNumber(),
-                player.getAvailabilityNotes(),
-                player.getDivision(),
-                player.isRedFlagged()
-        );
-    }
-
-    private TablePlayerDTO convertPlayerToAnonymousTablePlayerDTO(Player player) {
-        return new TablePlayerDTO(
-                player.getId(),
-                "Anonymous Player",
-                "See printed sheet",
-                "See printed sheet",
-                "",
-                player.getDivision(),
-                false
-        );
+        return playerService.retrieveAllPlayers(httpServletRequest);
     }
 
     @GetMapping("/players/{id}")

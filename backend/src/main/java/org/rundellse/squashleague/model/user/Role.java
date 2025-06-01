@@ -3,7 +3,7 @@ package org.rundellse.squashleague.model.user;
 import jakarta.persistence.*;
 import org.hibernate.annotations.NaturalId;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Role {
@@ -17,7 +17,7 @@ public class Role {
     private String name;
 
     @ManyToMany
-    private List<User> users;
+    private Set<User> users;
 
 
     public Role() {
@@ -43,11 +43,11 @@ public class Role {
         this.name = name;
     }
 
-    public List<User> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
+    public void setUsers(Set<User> users) {
         this.users = users;
     }
 }

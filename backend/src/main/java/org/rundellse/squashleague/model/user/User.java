@@ -3,8 +3,8 @@ package org.rundellse.squashleague.model.user;
 import jakarta.persistence.*;
 import org.rundellse.squashleague.model.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "site_user")
@@ -24,7 +24,7 @@ public class User {
     private String password;
 
     @ManyToMany
-    private List<Role> roles = new ArrayList<>();
+    private Set<Role> roles = new HashSet<>();
 
     @OneToOne
     private Player player;
@@ -65,11 +65,11 @@ public class User {
         this.password = password;
     }
 
-    public List<Role> getUserRoles() {
+    public Set<Role> getUserRoles() {
         return roles;
     }
 
-    public void setUserRoles(List<Role> roles) {
+    public void setUserRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
