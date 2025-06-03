@@ -9,16 +9,12 @@ class Division {
 
 document.addEventListener('DOMContentLoaded', function() {
     const apiUrl = 'http://localhost:8080/api/players';
-    const credentials = btoa('user' + ':' + 'password1');
     const tableBlock = document.querySelector('#table-block');
     const divisions = [];
 
     fetch(apiUrl, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Authorization': 'Basic ' + credentials
-        }
+        credentials: 'include'
     })
         .then(response => response.json())
         .then(players => {

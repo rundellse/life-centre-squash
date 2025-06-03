@@ -37,9 +37,6 @@ public class Player {
     @OneToMany
     private List<SquashMatch> awayMatches;
 
-    public Player() {
-    }
-
     public static Comparator<Player> PLAYER_POINTS_COMPARATOR = (p1, p2) -> {
         Integer p1Total = 0;
         Integer p2Total = 0;
@@ -53,6 +50,18 @@ public class Player {
         return p2Total - p1Total;
     };
 
+    public Player() {
+    }
+
+    public Player(String name, String email, String phoneNumber, String availabilityNotes, Integer division, boolean isRedFlagged, boolean isAnonymised) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.availabilityNotes = availabilityNotes;
+        this.division = division;
+        this.isRedFlagged = isRedFlagged;
+        this.isAnonymised = isAnonymised;
+    }
 
     public Player(Long id, String name, String email, String phoneNumber, String availabilityNotes, Integer division) {
         this.id = id;

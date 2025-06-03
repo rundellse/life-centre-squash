@@ -2,10 +2,16 @@ package org.rundellse.squashleague;
 
 import org.rundellse.squashleague.api.login.custom.CustomUserDetailsService;
 import org.rundellse.squashleague.api.player.PlayerRestController;
+import org.rundellse.squashleague.model.Player;
+import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.Roles;
+import org.rundellse.squashleague.model.user.User;
+import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.persistence.RoleRepository;
 import org.rundellse.squashleague.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +33,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -98,7 +106,6 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .requestMatchers("/login").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/players/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
-//                                        .requestMatchers(HttpMethod.POST, "/players").hasAuthority(Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/table/**").hasAuthority(Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
@@ -112,12 +119,15 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
+//    @Autowired
+//    private UserRepository userRepository;
+//
+//    @Autowired
+//    private RoleRepository roleRepository;
+//
+//    @Autowired
+//    private PlayerRepository playerRepository;
+//
 //    @Bean
 //    public CommandLineRunner init() {
 //        userRepository.deleteAll();
@@ -152,6 +162,17 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
 //        return args -> {
 //            userRepository.save(user);
 //            userRepository.save(admin);
+//            for (int i = 0; i < 24; i++) {
+//                playerRepository.save(new Player(
+//                        "Player " + i,
+//                        "email"+i+"@email.com",
+//                        "07777777"+i,
+//                        "Availibility"+i,
+//                        i%4,
+//                        false,
+//                        false
+//                ));
+//            }
 //        };
 //    }
 }

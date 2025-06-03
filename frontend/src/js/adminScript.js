@@ -33,7 +33,7 @@ function addPlayer() {
     fetch(playersUrl, {
         method: 'POST',
         headers: {
-            'Authorization': 'Basic ' + credentials,
+            // 'Authorization': 'Basic ' + credentials,
             'Content-type': 'application/json; charset=UTF-8'
         },
         body: JSON.stringify({
@@ -57,8 +57,8 @@ function configurePlayerDelete() {
     const deletePlayersSelect = document.getElementById('delete-player-select');
 
     fetch(playersUrl, {
-        // credentials: 'include',
         method: 'GET',
+        credentials: 'include',
         headers: {
             'Authorization': 'Basic ' + credentials
         }
@@ -95,8 +95,8 @@ function configurePlayerUpdate() {
     const updatePlayerSelect = document.getElementById('update-player-select');
 
     fetch(playersUrl, {
-        // credentials: 'include',
         method: 'GET',
+        credentials: 'include',
         headers: {
             'Authorization': 'Basic ' + credentials
         }
@@ -126,8 +126,8 @@ function updatePlayerLoad() {
     const url = 'http://localhost:8080/api/players/' + document.getElementById('update-player-select').value;
 
     fetch(url, {
-        // credentials: 'include',
         method: 'GET',
+        credentials: 'include',
         headers: {
             'Authorization': 'Basic ' + credentials
         }
@@ -156,8 +156,8 @@ function updatePlayer() {
 
     const url = 'http://localhost:8080/api/players/' + document.getElementById('update-player-select').value;
     fetch(url, {
-        // credentials: 'include',
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Authorization': 'Basic ' + credentials,
             'Content-type': 'application/json; charset=UTF-8'

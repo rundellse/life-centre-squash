@@ -35,12 +35,10 @@ public class PlayerService {
         String userEmail = httpServletRequest.getRemoteUser();
         User user = userRepository.findUserByEmail(userEmail);
         LOG.trace("Retrieving all players for User: {}", user.getId());
-        httpServletRequest.isUserInRole()
 
-        Set<String> roles = user.getUserRoles().stream().map(Role::getName).collect(Collectors.toSet());
-        if (roles.contains(Roles.ROLE_ADMIN.toString())) {
+        if (httpServletRequest.isUserInRole(Roles.ROLE_ADMIN.toString())) {
             return retrieveAllPlayersNoAnonymisation();
-        } else if (roles.contains(Roles.ROLE_USER.toString())) {
+        } else if (httpServletRequest.isUserInRole(Roles.ROLE_USER.toString())) {
             return retrieveAllPlayersWithAnonymisation();
         } else {
             LOG.error("User with id: {} does not have Admin or User role, major error as this request should have already been authorised.", user.getId());
@@ -51,7 +49,7 @@ public class PlayerService {
     private List<TablePlayerDTO> retrieveAllPlayersNoAnonymisation() {
         List<TablePlayerDTO> allTablePlayers = new ArrayList<>();
         for (Player player : playerRepository.findAll()) {
-            allTablePlayers.add(convertPlayerToTablePlayerDTO(player));
+            allTablePlayers.add(convertPlayerToTablePlayerDTO(player, player.isAnonymised()));
         }
         return allTablePlayers;
     }
@@ -62,16 +60,16 @@ public class PlayerService {
             if (player.isAnonymised()) {
                 allTablePlayers.add(convertPlayerToAnonymousTablePlayerDTO(player));
             } else {
-                allTablePlayers.add(convertPlayerToTablePlayerDTO(player));
+                allTablePlayers.add(convertPlayerToTablePlayerDTO(player, false));
             }
         }
         return allTablePlayers;
     }
 
-    private static TablePlayerDTO convertPlayerToTablePlayerDTO(Player player) {
+    private static TablePlayerDTO convertPlayerToTablePlayerDTO(Player player, boolean noteAnonymised) {
         return new TablePlayerDTO(
                 player.getId(),
-                player.getName(),
+                noteAnonymised ? player.getName() + " - ANONYMISED" : player.getName(),
                 player.getEmail(),
                 player.getPhoneNumber(),
                 player.getAvailabilityNotes(),
