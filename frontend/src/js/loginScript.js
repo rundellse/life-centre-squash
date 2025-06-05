@@ -27,6 +27,11 @@ function submitLogin() {
             password: password
         })
     })
-    .then(response => response.json())
+    .then( response => {
+        if (response.status == 202) {
+            console.log('login successful');
+            window.location.href = "index.html";
+        }
+    })
     .catch(error => console.error('Error during login: ', error));
 }

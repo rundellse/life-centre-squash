@@ -6,6 +6,29 @@ class Division {
     }
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutButton = document.getElementById('logout-button');
+    logoutButton.onclick = logout;
+});
+
+function logout() {
+    const logoutUrl = 'http://localhost:8080/api/logout';
+
+    fetch(logoutUrl, {
+        method: 'POST',
+        credentials: 'include',
+        redirect: 'follow',
+    })
+    .then(response => {
+        if (response.status = 200) {
+            alert('Logout completed successfully.');
+            window.location = 'login.html'
+        } else {
+            throw new Error('Logout not completed. Non-OK response code returned: ' + response.status);
+        }
+    })
+    .catch(error => console.error('Error while logging out:', error));
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const apiUrl = 'http://localhost:8080/api/players';

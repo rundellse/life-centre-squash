@@ -33,7 +33,6 @@ function addPlayer() {
     fetch(playersUrl, {
         method: 'POST',
         headers: {
-            // 'Authorization': 'Basic ' + credentials,
             'Content-type': 'application/json; charset=UTF-8'
         },
         body: JSON.stringify({

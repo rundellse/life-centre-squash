@@ -3,7 +3,6 @@ package org.rundellse.squashleague.service;
 import jakarta.servlet.http.HttpServletRequest;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
-import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.Roles;
 import org.rundellse.squashleague.model.user.User;
 import org.rundellse.squashleague.persistence.PlayerRepository;
@@ -17,8 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class PlayerService {
@@ -34,7 +31,7 @@ public class PlayerService {
     public Iterable<TablePlayerDTO> retrieveAllPlayers(HttpServletRequest httpServletRequest) {
         String userEmail = httpServletRequest.getRemoteUser();
         User user = userRepository.findUserByEmail(userEmail);
-        LOG.trace("Retrieving all players for User: {}", user.getId());
+        LOG.debug("Retrieving all players for User: {}", user.getId());
 
         if (httpServletRequest.isUserInRole(Roles.ROLE_ADMIN.toString())) {
             return retrieveAllPlayersNoAnonymisation();

@@ -1,17 +1,9 @@
 package org.rundellse.squashleague;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.rundellse.squashleague.api.login.custom.CustomUserDetailsService;
 import org.rundellse.squashleague.api.player.PlayerRestController;
-import org.rundellse.squashleague.model.Player;
-import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.Roles;
-import org.rundellse.squashleague.model.user.User;
-import org.rundellse.squashleague.persistence.PlayerRepository;
-import org.rundellse.squashleague.persistence.RoleRepository;
-import org.rundellse.squashleague.persistence.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,12 +21,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Optional;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 @EnableWebSecurity
@@ -108,12 +99,24 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.GET, "/players/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/table/**").hasAuthority(Roles.ROLE_ADMIN.toString())
-                                .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
+                                .requestMatchers(HttpMethod.GET, "/user/**").hasAuthority(Roles.ROLE_USER.toString())
                                 .requestMatchers(HttpMethod.POST, "/user/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
                 )
                 .logout(logoutConfigurer ->
                         logoutConfigurer
-                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")).permitAll()
+                                .logoutRequestMatcher(new MvcRequestMatcher(new HandlerMappingIntrospector(), "/logout"))
+                                .logoutSuccessHandler((request, response, authentication) -> {
+                                    response.setStatus(HttpServletResponse.SC_OK);
+                                    response.setContentType("application/json");
+
+                                    // CORS mappings are added for Controller Endpoints only by addCorsMappings above. Needs
+                                    // to be added manually for the logout response. According to Spring this is still preferred,
+                                    // rather than creating a custom logout to ensure logout is done fully and properly. I'll take their word for it.
+                                    response.setHeader("Access-Control-Allow-Origin", "http://localhost:8081");
+                                    response.setHeader("Access-Control-Allow-Credentials", "true");
+                                    response.getWriter().write("{\"message\": \"Logged out\"}");
+                                })
+                                .permitAll()
                 );
         return http.build();
     }
