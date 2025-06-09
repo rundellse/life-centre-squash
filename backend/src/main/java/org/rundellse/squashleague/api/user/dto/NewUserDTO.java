@@ -1,6 +1,6 @@
 package org.rundellse.squashleague.api.user.dto;
 
-public record UserDTO (
+public record NewUserDTO(
         String name,
         String email,
         String password

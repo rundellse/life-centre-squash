@@ -99,7 +99,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.GET, "/players/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/table/**").hasAuthority(Roles.ROLE_ADMIN.toString())
-                                .requestMatchers(HttpMethod.GET, "/user/**").hasAuthority(Roles.ROLE_USER.toString())
+                                .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/user/**").hasAnyAuthority(Roles.ROLE_USER.toString(), Roles.ROLE_ADMIN.toString())
                 )
                 .logout(logoutConfigurer ->
@@ -111,7 +111,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
                                     // CORS mappings are added for Controller Endpoints only by addCorsMappings above. Needs
                                     // to be added manually for the logout response. According to Spring this is still preferred,
-                                    // rather than creating a custom logout to ensure logout is done fully and properly. I'll take their word for it.
+                                    // rather than creating a custom logout, to ensure logout is done fully and properly. I'll take their word for it.
                                     response.setHeader("Access-Control-Allow-Origin", "http://localhost:8081");
                                     response.setHeader("Access-Control-Allow-Credentials", "true");
                                     response.getWriter().write("{\"message\": \"Logged out\"}");

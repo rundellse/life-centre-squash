@@ -4,7 +4,6 @@ const loginUrl = 'http://localhost:8080/api/login';
 document.addEventListener('DOMContentLoaded', function() {
     const loginButton = document.getElementById("login-button");
     loginButton.onclick = submitLogin;
-
 });
 
 function submitLogin() {

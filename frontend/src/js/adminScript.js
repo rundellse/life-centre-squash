@@ -1,6 +1,5 @@
 
 const playersUrl = 'http://localhost:8080/api/players';
-const credentials = btoa('user' + ':' + 'password1');
 
 document.addEventListener('DOMContentLoaded', function() {
     configurePlayerAdd();
@@ -57,10 +56,7 @@ function configurePlayerDelete() {
 
     fetch(playersUrl, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Authorization': 'Basic ' + credentials
-        }
+        credentials: 'include'
     })
     .then(response => response.json())
     .then(players => {
@@ -95,10 +91,7 @@ function configurePlayerUpdate() {
 
     fetch(playersUrl, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Authorization': 'Basic ' + credentials
-        }
+        credentials: 'include'
     })
     .then(response => response.json())
     .then(players => {
@@ -126,10 +119,7 @@ function updatePlayerLoad() {
 
     fetch(url, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-            'Authorization': 'Basic ' + credentials
-        }
+        credentials: 'include'
     })
     .then(response => response.json())
     .then(player => {
@@ -158,7 +148,6 @@ function updatePlayer() {
         method: 'POST',
         credentials: 'include',
         headers: {
-            'Authorization': 'Basic ' + credentials,
             'Content-type': 'application/json; charset=UTF-8'
         },
         body: JSON.stringify({

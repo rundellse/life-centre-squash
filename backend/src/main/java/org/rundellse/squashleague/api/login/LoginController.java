@@ -26,10 +26,12 @@ public class LoginController {
     @Autowired
     private SecurityContextHolder securityContextHolder;
 
+
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         if (loginRequest.email() == null || loginRequest.email().isEmpty()
                 || loginRequest.password() == null || loginRequest.password().isEmpty()) {
+            LOG.debug("Attempted login failed, required email or password field not included.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

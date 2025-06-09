@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Profile</title>
+        <meta name="description" content="User management page">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../src/css/styles.css">
+    </head>
+    <body>
+        <nav>
+            <a href="index.html">League</a>
+        </nav>
+
+        <form id="update-user-form">
+            <h2>Update details</h2>
+            <label>Name</label>
+            <br/>
+            <input id="name-field" type="text"/>
+            <br/><br/>
+            <label>Email Address</label>
+            <br/>
+            <input id="email-field" type="text"/>
+            <br/><br/>
+            <label>Phone Number</label>
+            <br/>
+            <input id="phone-field" type="text"/>
+            <br/><br/>
+            <label>Availability Notes</label>
+            <p1>Use this for any notes relating to your availability and contact details e.g. what days of the week you
+                are typically available, are you contactable through WhatsApp, etc..</p1>
+            <br/>
+            <textarea id="availability-field" type="text"></textarea>
+            <br/><br/>
+            <label>Anonymise my profile</label>
+            <br/>
+            <p1>Selecting this box will hide your details from all users of the squash league site, your details will
+                only be available to the organisers of the league for the purposes of printing the league sheet. Similarly,
+                your details will only be findable to others on the printed sheet posted on the Life Centre Squash Board
+                and the emailed pdf of the sheet.
+            </p1>
+            <br/>
+            <input id="anonymise-check" type="checkbox"/>
+            <br/>
+            <a href="password-update.html">Update Password</a>
+            <br/><br/>
+            <button type="button" onclick="" id="update-player-button">Save</button>
+            <br/>
+            <p1 id="updated-text"></p1>
+        </form>
+
+        <script src="../src/js/userScript.js"></script>
+    </body>
+</html>
