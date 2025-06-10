@@ -1,5 +1,6 @@
 package org.rundellse.squashleague.service;
 
+import jakarta.transaction.Transactional;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.model.Season;
 import org.rundellse.squashleague.persistence.PlayerRepository;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TableService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableService.class.getName());
@@ -31,15 +33,16 @@ public class TableService {
         if (endingSeason == null) {
             LOG.info("No Season found for current date, getting latest season");
             endingSeason = seasonRepository.findFirstByOrderByEndDateDesc();
+
             if (endingSeason == null) {
-                LOG.warn("No Season found in DB. Creating new Season, no end-season done.");
+                LOG.warn("No Season found in DB. Creating new Season, no end-season done");
                 createNewSeason(newSeasonEndDate);
                 return null;
             }
         }
 
         Map<Integer, List<Player>> newDivisions = createNewDivisions();
-        Season newSeason = createNewSeason(newSeasonEndDate);
+        createNewSeason(newSeasonEndDate);
 
         endingSeason.setEndDate(LocalDate.now());
         seasonRepository.save(endingSeason);
@@ -53,7 +56,7 @@ public class TableService {
         return createAndPopulateNewDivisions(orderedPlayersList);
     }
 
-    private Map<Integer, List<Player>> getCurrentDivisions() {
+    public Map<Integer, List<Player>> getCurrentDivisions() {
         Map<Integer, List<Player>> endingSeasonDivisions = new HashMap<>();
         Iterable<Player> originalPlayerList = playerRepository.findAll();
 
@@ -90,10 +93,9 @@ public class TableService {
             // Establish the results of this Season for each division. Order the
             List<Player> division = currentDivisions.get(divisionNum);
             division.sort(Player.PLAYER_POINTS_COMPARATOR);
-            if (LOG.isTraceEnabled()) {
-                // Maybe division should just be a class. But for now I've committed.
-                LOG.trace("Division {} result: {}}", divisionNum, division);
-            }
+
+            // Maybe division should just be a class. But for now I've committed.
+            LOG.trace("Division {} result: {}}", divisionNum, division);
 
             orderedPlayersList.addAll(division);
 
@@ -111,8 +113,9 @@ public class TableService {
         //TODO chooseable division sizes
         //TODO dealing with small player sizes
         int sixPlayerDivisions = orderedPlayersList.size() % 5;
-        int totalPlayerDivisions = (orderedPlayersList.size() / 5);
+        int totalPlayerDivisions = orderedPlayersList.size() / 5;
         if (sixPlayerDivisions > totalPlayerDivisions) {
+            LOG.error("Not enough players for table/division sizes calculation, for now please assemble manually");
             throw new IllegalArgumentException("Not enough players for table/division sizes calculation, for now please assemble manually.");
         }
 
@@ -135,26 +138,26 @@ public class TableService {
         return newDivisions;
     }
 
-    void movePlayerInList(List<Player> list, Player player, int indexChange) {
+    void movePlayerInList(List<Player> orderedPlayerList, Player player, int indexChange) {
         if (indexChange == 0) {
             return;
         }
 
-        int indexOfObject = list.indexOf(player);
-        int destinationIndex = indexOfObject + indexChange;
-        if (list.size() < destinationIndex + 1) {
-            LOG.trace("While building ordered Player list, demotion index stretches beyond current list size, expanding. Current list size: " + list.size() + ". Required index: " + indexOfObject);
-            for (int i = 0; i < destinationIndex - list.size() + 1; i++) {
-                list.add(null);
+        int previousPlayerIndex = orderedPlayerList.indexOf(player);
+        int destinationIndex = previousPlayerIndex + indexChange;
+        if (orderedPlayerList.size() < destinationIndex + 1) {
+            LOG.trace("While building ordered Player list, demotion index stretches beyond current list size, expanding. Current list size: {}. Required index: {}", orderedPlayerList.size(), previousPlayerIndex);
+            for (int i = 0; i < destinationIndex - orderedPlayerList.size() + 1; i++) {
+                orderedPlayerList.add(null);
             }
         } else if (destinationIndex < 0) {
             LOG.warn("Promotion placed a player above the top of the table, setting to top. This implies the top table was very small for some reason");
             destinationIndex = 0;
         }
 
-        list.add(destinationIndex, player);
+        orderedPlayerList.add(destinationIndex, player);
         // If object is added above previous index then original object is bumped up one. If added below original is unmoved.
-        list.remove(indexChange > 0 ? indexOfObject : indexOfObject + 1);
+        orderedPlayerList.remove(indexChange > 0 ? previousPlayerIndex : previousPlayerIndex + 1);
     }
 
     private Season createNewSeason(LocalDate newSeasonEndDate) {

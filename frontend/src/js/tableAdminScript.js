@@ -13,20 +13,23 @@ class DivisionUpdate {
     }
 }
 
-const credentials = btoa('user' + ':' + 'password1');
 let divisionsCount = 0;
 
+
 document.addEventListener('DOMContentLoaded', function() {
+    populateAdminTable();
+    configureSeasonButtons();
+});
+
+
+function populateAdminTable() {
     const apiUrl = 'http://localhost:8080/api/players';
     const tableBlock = document.querySelector('#table-block');
     const divisions = [];
 
     fetch(apiUrl, {
-        // credentials: 'include',
         method: 'GET',
-        headers: {
-            'Authorization': 'Basic ' + credentials
-        }
+        credentials: 'include'
     })
         .then(response => response.json())
         .then(players => {
@@ -57,15 +60,16 @@ document.addEventListener('DOMContentLoaded', function() {
             })
         })
         .catch(error => console.error('Error fetching players:', error));
+}
 
-        const topSaveDivisionsButton = document.getElementById('topSaveDivisionsButton');
-        const bottomSaveDivisionsButton = document.getElementById('bottomSaveDivisionsButton');
-        topSaveDivisionsButton.onclick = updateDivisions;
-        bottomSaveDivisionsButton.onclick = updateDivisions;
+function configureSeasonButtons() {
+    document.getElementById('save-divisions-button-top').onclick = updateDivisions;
+    document.getElementById('save-divisions-button-bottom').onclick = updateDivisions;
 
-        const newSeasonButton = document.getElementById('newSeasonButton');
-        newSeasonButton.onclick = newSeason;
-});
+    document.getElementById('new-season-button').onclick = newSeason;
+    document.getElementById('generate-pdf-button').onclick = generatePdf;
+}
+
 
 
 function addPlayerRowToDivisionTable(index, player, divisionTable) {
@@ -79,7 +83,7 @@ function addPlayerRowToDivisionTable(index, player, divisionTable) {
 
     row.appendChild(nameCell);
 
-     const detailsCell = document.createElement('th');
+    const detailsCell = document.createElement('th');
     detailsCell.className = 'details-cell';
 
     const phoneNumberDiv = document.createElement('div');
@@ -112,7 +116,7 @@ function addPlayerRowToDivisionTable(index, player, divisionTable) {
     redFlagButton.innerHTML = 'Red Flag';
     redFlagButtonCell.appendChild(redFlagButton);
 
-    row.innerHTML = letterCell + row.innerHTML + playerDetails;
+    row.innerHTML = letterCell + row.innerHTML;
     row.appendChild(promoteButtonCell);
     row.appendChild(relegateButtonCell);
     row.appendChild(redFlagButtonCell);
@@ -157,8 +161,8 @@ function updateDivisions() {
     const updateBody = JSON.stringify(divisionUpdates)
     fetch('http://localhost:8080/api/table/update-table', {
         method: 'POST',
+        credentials: 'include',
         headers: {
-            'Authorization': 'Basic ' + credentials,
             'Content-type': 'application/json; charset=UTF-8'
         },
         body: updateBody
@@ -166,7 +170,10 @@ function updateDivisions() {
     .then(() => {
         console.log('Tables updated');
     })
-    .catch(error => console.error('Error saving division updates:', error));
+    .catch(error => {
+        console.error('Error saving division updates:', error);
+        throw error;
+    });
 }
 
 function newSeason() {
@@ -174,24 +181,45 @@ function newSeason() {
         return;
     }
 
-    const newSeasonEndDate = document.getElementById('newSeasonEndDate').value;
+    const newSeasonEndDate = document.getElementById('new-season-end-date').value;
     if (newSeasonEndDate === null || newSeasonEndDate === '') {
         alert('Please select a date for the Season end date.');
         return;
     }
 
     console.log('Creating a new Season, doing promotions, relegations etc.. New end date: ' + newSeasonEndDate);
-    const newSeasonEndDateBody = JSON.stringify(newSeasonEndDate)
     fetch('http://localhost:8080/api/table/new-season', {
         method: 'POST',
+        credentials: 'include',
         headers: {
-            'Authorization': 'Basic ' + credentials,
             'Content-type': 'application/json; charset=UTF-8'
         },
-        body: newSeasonEndDateBody
+        body: JSON.stringify(newSeasonEndDate)
     })
     .then(() => {
         console.log('New Season created!');
     })
     .catch(error => console.error('Error creating new season:', error));
+}
+
+function generatePdf() {
+    try {
+        updateDivisions();
+    } 
+    catch (error) {
+        alert("Error while trying to save table before pdf generation: " + error);
+    }
+
+    fetch('http://localhost:8080/api/table/generate-pdf', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        console.log('Blob returned from fetch');
+        var file = window.URL.createObjectURL(blob);
+        window.open(file, '_blank').focus;
+    })
+    .catch(error => console.error('Error while generating pdf', error));
+
 }

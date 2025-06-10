@@ -18,16 +18,16 @@ function updateUser() {
     const warningText = document.getElementById('warning-text');
 
     if (currentPassword === null || currentPassword === '') {
-        warningText.innerText('Current password is required.');
+        warningText.innerText = 'Current password is required.';
         return;
     } else if (newPassword === null || newPassword === '') {
-        warningText.innerText('New password is required.');
+        warningText.innerText = 'New password is required.';
         return;
     } else if (verifyPassword === null || verifyPassword === '') {
-        warningText.innerText('Verify new password is required.');
+        warningText.innerText = 'Verify new password is required.';
         return;
     } else if (newPassword !== verifyPassword) {
-        warningText.innerText('Passwords do not match.');
+        warningText.innerText = 'Passwords do not match.';
         return;
     }
 

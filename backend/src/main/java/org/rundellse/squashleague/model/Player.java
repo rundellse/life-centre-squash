@@ -40,6 +40,8 @@ public class Player {
     public static Comparator<Player> PLAYER_POINTS_COMPARATOR = (p1, p2) -> {
         Integer p1Total = 0;
         Integer p2Total = 0;
+
+        //TODO Possible n+1, needs to be looked at.
         for (SquashMatch squashMatch : p1.getHomeMatches()) {
             p1Total += Objects.equals(p1.id, squashMatch.getHomePlayer().getId()) ? squashMatch.getHomePlayerPoints() : squashMatch.getAwayPlayerPoints();
         }

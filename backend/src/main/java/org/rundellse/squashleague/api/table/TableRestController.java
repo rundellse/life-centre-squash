@@ -3,19 +3,23 @@ package org.rundellse.squashleague.api.table;
 import org.rundellse.squashleague.api.player.dto.BulkPlayerUpdateDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.rundellse.squashleague.service.PdfService;
 import org.rundellse.squashleague.service.TableService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
 @RestController
-@RequestMapping
-@CrossOrigin
 public class TableRestController {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableRestController.class.getName());
@@ -25,6 +29,9 @@ public class TableRestController {
 
     @Autowired
     private PlayerRepository playerRepository;
+
+    @Autowired
+    private PdfService pdfService;
 
 
     @PostMapping("/table/new-season")
@@ -51,5 +58,15 @@ public class TableRestController {
             updatedPlayers.add(player);
             playerRepository.saveAll(updatedPlayers);
         }
+    }
+
+    @GetMapping("/table/generate-pdf")
+    public ResponseEntity<Resource> getCurrentSeasonPdf() throws IOException {
+        Resource pdfResource = pdfService.getCurrentSeasonPdfResource();
+        LOG.debug("PDF generated. Resource to be returned: {}", pdfResource);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pdfResource.getFilename() + "\"")
+                .body(pdfResource);
     }
 }
