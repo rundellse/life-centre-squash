@@ -14,6 +14,7 @@ public class SquashMatch {
 
     @ManyToOne
     private Season season;
+    private Integer division;
 
     @OneToOne
     @MapsId
@@ -66,6 +67,14 @@ public class SquashMatch {
 
     public void setSeason(Season season) {
         this.season = season;
+    }
+
+    public Integer getDivision() {
+        return division;
+    }
+
+    public void setDivision(Integer division) {
+        this.division = division;
     }
 
     public Player getHomePlayer() {
