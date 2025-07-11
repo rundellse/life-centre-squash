@@ -83,7 +83,7 @@ public class UserService {
         User sessionUser = userRepository.findUserByEmail(request.getRemoteUser());
         if (sessionUser == null) {
             LOG.error("Session User not found by email in Database. Session ID: {}", request.getSession().getId());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         return sessionUser;

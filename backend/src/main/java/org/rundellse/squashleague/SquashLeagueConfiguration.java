@@ -2,7 +2,7 @@ package org.rundellse.squashleague;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.rundellse.squashleague.api.login.custom.CustomUserDetailsService;
-import org.rundellse.squashleague.api.player.PlayerRestController;
+import org.rundellse.squashleague.api.player.PlayerController;
 import org.rundellse.squashleague.model.user.Roles;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -44,8 +44,8 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public PlayerRestController playerRestController() {
-        return new PlayerRestController();
+    public PlayerController playerController() {
+        return new PlayerController();
     }
 
     @Bean

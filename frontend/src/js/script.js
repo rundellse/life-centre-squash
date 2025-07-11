@@ -6,6 +6,28 @@ class Division {
     }
 }
 
+// Checks like this is why this page should be served from the server or be an SPA ideally.
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('http://localhost:8080/api/user/roles', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (response.status == 403) {
+            window.location = 'login.html';
+        }
+    })
+    .then(response => response.json())
+    .then(roles => {
+        roles.forEach(role => {
+            if (role == 'ROLE_ADMIN') {
+                document.getElementById('admin-link').removeAttribute('hidden');
+            }
+        })
+    })
+    .catch(error => console.error('Error while checking user roles:', error));
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const logoutButton = document.getElementById('logout-button');
     logoutButton.onclick = logout;
@@ -17,10 +39,9 @@ function logout() {
     fetch(logoutUrl, {
         method: 'POST',
         credentials: 'include',
-        redirect: 'follow',
     })
     .then(response => {
-        if (response.status = 200) {
+        if (response.status == 200) {
             alert('Logout completed successfully.');
             window.location = 'login.html'
         } else {
@@ -32,7 +53,7 @@ function logout() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const apiUrl = 'http://localhost:8080/api/players';
-    const tableBlock = document.querySelector('#table-block');
+    const tableBlock = document.getElementById('table-block');
     const divisions = [];
 
     fetch(apiUrl, {
@@ -53,10 +74,18 @@ document.addEventListener('DOMContentLoaded', function() {
             return divisions;
         })
         .then(divisions => {
+            let divisionNum = 0;
+
             divisions.forEach(division => {
+                const divisionTitle = document.createElement('h2');
+                divisionTitle.setAttribute('class', 'table-heading')
+                divisionTitle.innerText = getDivisionTitle(divisionNum);
+                tableBlock.appendChild(divisionTitle);
+
                 const divisionLength = division.players.length;
                 const divisionTable = document.createElement('table');
                 divisionTable.setAttribute('id', 'playerTable' + division.divisionNum);
+
                 divisionTable.innerHTML = createDivisionTableTopRow(divisionLength);
 
                 for (let i = 0; i < divisionLength; i++) {
@@ -64,15 +93,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     addPlayerRowToDivisionTable(i, divisionLength, player, divisionTable);
                 }
                 tableBlock.appendChild(divisionTable);
+                divisionNum++;
             })
         })
         .catch(error => console.error('Error fetching players:', error));
 });
 
+function getDivisionTitle(divisionNum) {
+    if (divisionNum == 0) {
+        return 'PREMIER DIVISION';
+    }
+
+    return 'DIVISION ' + divisionNum;
+}
+
 function createDivisionTableTopRow(divisionLength) {
     let topRowLetters = "";
     for (let i = 0; i < divisionLength; i++) {
-        topRowLetters = topRowLetters + "<td>" + String.fromCharCode(65 + i) + "</td>\n"; // Capitals from A...
+        // Capitals from A...
+        topRowLetters = topRowLetters + '<td class="top-letter-cell">' + String.fromCharCode(65 + i) + '</td>\n';
     }
 
     return `
@@ -86,12 +125,12 @@ function createDivisionTableTopRow(divisionLength) {
 }
 
 function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTable) {
-    const letterCell = `<td>${String.fromCharCode(65 + index)}</td>`
+    const letterCell = `<td class="side-letter-cell">${String.fromCharCode(65 + index)}</td>`
 
     const row = document.createElement('tr');
 
     const nameCell = document.createElement('th');
-    nameCell.className = 'name-div';
+    nameCell.className = 'name-cell';
     nameCell.innerText = player.name;
     // const availabilityPopup = document.createElement('div');
     // availabilityPopup.className = 'availability-div';
@@ -125,9 +164,9 @@ function addPlayerRowToDivisionTable(index, divisionLength, player, divisionTabl
     let gameCells = '';
     for (let i = 0; i < divisionLength; i++) {
         if (i === index) {
-            gameCells = gameCells + '<td class="self-game-cell"></td>';
+            gameCells = gameCells + '<td class="game-cell, self-game-cell"></td>';
         } else {
-            gameCells = gameCells + '<td></td>' 
+            gameCells = gameCells + '<td class="game-cell"></td>' 
         }
     }
 

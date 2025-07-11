@@ -19,9 +19,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping
 @CrossOrigin
-public class PlayerRestController {
+public class PlayerController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlayerRestController.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerController.class.getName());
 
     @Autowired
     private PlayerRepository playerRepository;

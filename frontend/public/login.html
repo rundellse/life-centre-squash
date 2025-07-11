@@ -1,25 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!-- Based on https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/form.html#servlet-authentication-form-custom -->
-	<head>
-		<title>Please Log In</title>
-	</head>
-	<body>
-		<nav>
-            <a href="index.html">League</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-            <a href="admin.html">Admin</a>
-            <a href="login.html">Login</a>
+    <head>
+        <meta charset="utf-8">
+        <title>PLCSL - Login</title>
+        <meta name="description" content="Login page for Plymouth Life Centre Squash League">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../src/css/styles.css">
+    </head>
+    <body>
+        <h1>Plymouth Life Centre Squash League</h1>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html">League</a>
+                <a href="about.html">About</a>
+                <!-- <a href="contact.html">Contact</a> -->
+                <a href="admin.html" id="admin-link" hidden>Admin</a>
+            </div>
+            <div class="nav-right">
+                <a href="login.html">Login</a>
+                <a href="user-management.html">Account</a>
+                <button id="logout-button">Logout</button>
+            </div>
         </nav>
-		<h1>Please Log In</h1>
-		<form>
-			<div>
-			<input id="email-field" type="text" name="email" placeholder="email"/>
-			</div>
-			<div>
+
+		<form id="login-form">
+			<h1>Please Log In</h1>
+			<label for="email-field">Email Address</label>
+			<input id="email-field" type="text" name="email" placeholder="email address"/>
+			<label for="password-field">Password</label>
 			<input id="password-field" type="password" name="password" placeholder="Password"/>
-			</div>
+			<br>
 			<input id="login-button" type="button" value="Log in" />
 		</form>
 	</body>

@@ -3,20 +3,24 @@
     <head>
         <meta charset="utf-8">
         <title>Main Page</title>
-        <meta name="description" content="Main landing page and league tables for Life Centre Squash League">
+        <meta name="description" content="Main landing page and league tables for Plymouth Life Centre Squash League">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="../src/css/styles.css">
     </head>
     <body>
         <h1>Plymouth Life Centre Squash League</h1>
         <nav>
-            <a href="index.html">League</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-            <a href="admin.html">Admin</a>
-            <a href="login.html">Login</a>
-            <a href="user-management.html">Account</a>
-            <button id="logout-button">Logout</button>
+            <div class="nav-left">
+                <a href="index.html">League</a>
+                <a href="about.html">About</a>
+                <!-- <a href="contact.html">Contact</a> -->
+                <a href="admin.html" id="admin-link" hidden>Admin</a>
+            </div>
+            <div class="nav-right">
+                <a href="login.html">Login</a>
+                <a href="user-management.html">Account</a>
+                <button id="logout-button">Logout</button>
+            </div>
         </nav>
 
         <div id="table-block">

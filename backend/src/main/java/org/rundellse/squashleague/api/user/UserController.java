@@ -3,6 +3,7 @@ package org.rundellse.squashleague.api.user;
 import jakarta.servlet.http.HttpServletRequest;
 import org.rundellse.squashleague.api.user.dto.PasswordUpdateDTO;
 import org.rundellse.squashleague.api.user.dto.UserDetailsDTO;
+import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.User;
 import org.rundellse.squashleague.service.UserService;
 import org.slf4j.Logger;
@@ -21,6 +22,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+
+    @GetMapping("/user/roles")
+    public Iterable<String> getUserForSessionRoles(HttpServletRequest request) {
+        User sessionUser = userService.getSessionUser(request);
+        return sessionUser.getUserRoles().stream().map(Role::getName).toList();
+    }
 
     @GetMapping("/user")
     public UserDetailsDTO getUserForSession(HttpServletRequest request) {

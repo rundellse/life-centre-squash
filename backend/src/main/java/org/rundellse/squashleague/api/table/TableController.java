@@ -20,9 +20,9 @@ import java.time.LocalDate;
 import java.util.*;
 
 @RestController
-public class TableRestController {
+public class TableController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TableRestController.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(TableController.class.getName());
 
     @Autowired
     private TableService tableService;
