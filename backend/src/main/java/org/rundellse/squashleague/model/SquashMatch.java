@@ -40,6 +40,15 @@ public class SquashMatch {
     public SquashMatch() {
     }
 
+    public SquashMatch(Season season, Integer division, Player homePlayer, Player awayPlayer, Integer homePlayerPoints, Integer awayPlayerPoints) {
+        this.season = season;
+        this.division = division;
+        this.homePlayer = homePlayer;
+        this.awayPlayer = awayPlayer;
+        this.homePlayerPoints = homePlayerPoints;
+        this.awayPlayerPoints = awayPlayerPoints;
+    }
+
     public SquashMatch(Long id, Season season, Player homePlayer, Player awayPlayer, Integer homePlayerPoints, Integer awayPlayerPoints, Integer homePlayerMatchScore, Integer awayPlayerMatchScore, List<SquashGame> games) {
         this.id = id;
         this.season = season;

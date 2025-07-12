@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.rundellse.squashleague.api.user.dto.UserDetailsDTO;
 import org.rundellse.squashleague.model.Player;
-import org.rundellse.squashleague.model.user.Roles;
+import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.User;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.persistence.UserRepository;
@@ -92,7 +92,7 @@ public class UserService {
     private boolean validateUserAgainstRequest(HttpServletRequest request, User userToUpdate) {
         User sessionUser = getSessionUser(request);
 
-        if (request.isUserInRole(Roles.ROLE_ADMIN.name())) {
+        if (request.isUserInRole(Role.ROLE_ADMIN.name())) {
             LOG.info("User details update for User (ID: {}) performed by administrator (ID: {}), not validating session User against User to update.", userToUpdate, sessionUser.getId());
             return true;
         }

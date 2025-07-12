@@ -108,6 +108,13 @@ h1 {
     color: #2c3e50;
 }
 
+h2 {
+    text-align: center;
+    margin: 32px 0 16px 0;
+    font-size: 1.6rem;
+    color: #2c3e50;
+}
+
 .email-mailto {
     display: inline;
 }

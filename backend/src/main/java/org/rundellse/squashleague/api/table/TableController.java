@@ -22,7 +22,7 @@ import java.util.*;
 @RestController
 public class TableController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TableController.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
 
     @Autowired
     private TableService tableService;

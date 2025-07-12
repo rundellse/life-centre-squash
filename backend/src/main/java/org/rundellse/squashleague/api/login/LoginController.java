@@ -1,6 +1,7 @@
 package org.rundellse.squashleague.api.login;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.rundellse.squashleague.api.login.dto.LoginRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

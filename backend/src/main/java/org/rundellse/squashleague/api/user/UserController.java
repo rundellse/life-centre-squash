@@ -3,8 +3,8 @@ package org.rundellse.squashleague.api.user;
 import jakarta.servlet.http.HttpServletRequest;
 import org.rundellse.squashleague.api.user.dto.PasswordUpdateDTO;
 import org.rundellse.squashleague.api.user.dto.UserDetailsDTO;
-import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.User;
+import org.rundellse.squashleague.model.user.UserRole;
 import org.rundellse.squashleague.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Objects;
 
 // TODO User deactivation and deletion, timed deletion on red-flag removal.
 @RestController
@@ -26,7 +28,7 @@ public class UserController {
     @GetMapping("/user/roles")
     public Iterable<String> getUserForSessionRoles(HttpServletRequest request) {
         User sessionUser = userService.getSessionUser(request);
-        return sessionUser.getUserRoles().stream().map(Role::getName).toList();
+        return sessionUser.getUserRoles().stream().map(UserRole::getRole).map(Objects::toString).toList();
     }
 
     @GetMapping("/user")

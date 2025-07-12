@@ -3,7 +3,7 @@ package org.rundellse.squashleague.service;
 import jakarta.servlet.http.HttpServletRequest;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
-import org.rundellse.squashleague.model.user.Roles;
+import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.User;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.persistence.UserRepository;
@@ -28,14 +28,15 @@ public class PlayerService {
     @Autowired
     private UserRepository userRepository;
 
+
     public Iterable<TablePlayerDTO> retrieveAllPlayers(HttpServletRequest httpServletRequest) {
         String userEmail = httpServletRequest.getRemoteUser();
         User user = userRepository.findUserByEmail(userEmail);
         LOG.debug("Retrieving all players for User: {}", user.getId());
 
-        if (httpServletRequest.isUserInRole(Roles.ROLE_ADMIN.toString())) {
+        if (httpServletRequest.isUserInRole(Role.ROLE_ADMIN.toString())) {
             return retrieveAllPlayersNoAnonymisation();
-        } else if (httpServletRequest.isUserInRole(Roles.ROLE_USER.toString())) {
+        } else if (httpServletRequest.isUserInRole(Role.ROLE_USER.toString())) {
             return retrieveAllPlayersWithAnonymisation();
         } else {
             LOG.error("User with id: {} does not have Admin or User role, major error as this request should have already been authorised.", user.getId());

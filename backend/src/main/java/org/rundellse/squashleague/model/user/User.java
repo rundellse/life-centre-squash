@@ -24,7 +24,7 @@ public class User {
     private String password;
 
     @ManyToMany
-    private Set<Role> roles = new HashSet<>();
+    private Set<UserRole> userRoles = new HashSet<>();
 
     @OneToOne
     private Player player;
@@ -65,12 +65,12 @@ public class User {
         this.password = password;
     }
 
-    public Set<Role> getUserRoles() {
-        return roles;
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
     }
 
-    public void setUserRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 
     public Player getPlayer() {

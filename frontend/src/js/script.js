@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (response.status == 403) {
             window.location = 'login.html';
         }
+        return response;
     })
     .then(response => response.json())
     .then(roles => {

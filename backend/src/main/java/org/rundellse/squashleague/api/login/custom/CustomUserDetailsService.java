@@ -1,7 +1,7 @@
 package org.rundellse.squashleague.api.login.custom;
 
-import org.rundellse.squashleague.model.user.Role;
 import org.rundellse.squashleague.model.user.User;
+import org.rundellse.squashleague.model.user.UserRole;
 import org.rundellse.squashleague.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,9 +28,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getUserRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<UserRole> userRoles) {
+        return userRoles.stream()
+                .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().toString()))
                 .toList();
     }
 }
