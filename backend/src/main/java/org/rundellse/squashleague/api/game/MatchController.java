@@ -68,14 +68,14 @@ public class MatchController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        Player homePlayer = playerRepository.getReferenceById(homePlayerId);
+        Player homePlayer = playerRepository.findById(homePlayerId).orElseThrow();
         Player awayPlayer = playerRepository.getReferenceById(awayPlayerId);
         SquashMatch squashMatch = squashMatchRepository.findSquashMatchBySeasonAndHomePlayerAndAwayPlayer(season, homePlayer, awayPlayer);
         if (squashMatch == null) {
             LOG.debug("No squash match found, creating a new Match. {}", matchDTO);
             squashMatch = new SquashMatch(
                     season,
-                    0/*TODO GET DIVISION*/,
+                    homePlayer.getDivision(),
                     homePlayer,
                     awayPlayer,
                     matchDTO.homePlayerPoints(),

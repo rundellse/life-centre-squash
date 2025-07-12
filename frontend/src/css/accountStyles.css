@@ -1,0 +1,30 @@
+form {
+    margin-left: 80px;
+    width: 60%;
+    min-width: 500px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    width: 300px;
+}
+
+input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    accent-color: #2c3e50;
+    margin-left: 0;    
+    vertical-align: middle;
+}
+
+textarea {
+    width: 340px;
+    height: 100px;
+}
+
+#warning-text {
+    color: red;
+}
