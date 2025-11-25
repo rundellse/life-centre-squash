@@ -10,7 +10,7 @@
     <logger name="org.apache.tomcat" level="INFO" />
     <logger name="org.rundellse.squashleague" level="TRACE" />
 <!--    <logger name="org.springframework.transaction" level="TRACE" />-->
-    <logger name="org.springframework.security" level="DEBUG" />
+    <logger name="org.springframework.security" level="TRACE" />
 <!--    <logger name="org.hibernate.SQL" level="TRACE" />-->
 <!--    <logger name="jakarta.transaction" level="TRACE" />-->
 <!--    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" />-->

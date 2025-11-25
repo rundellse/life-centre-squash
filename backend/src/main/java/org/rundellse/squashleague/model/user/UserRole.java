@@ -1,7 +1,6 @@
 package org.rundellse.squashleague.model.user;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.NaturalId;
 
 import java.util.Set;
 
@@ -12,8 +11,7 @@ public class UserRole {
     @GeneratedValue
     private Long id;
 
-    @NaturalId
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @ManyToMany

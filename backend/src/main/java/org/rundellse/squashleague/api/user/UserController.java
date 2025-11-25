@@ -25,16 +25,22 @@ public class UserController {
     private UserService userService;
 
 
+    @GetMapping("/user")
+    public UserDetailsDTO getUserForSession(HttpServletRequest request) {
+        User sessionUser = userService.getSessionUser(request);
+        return UserService.createUserDetailsDTO(sessionUser, sessionUser.getPlayer());
+    }
+
     @GetMapping("/user/roles")
     public Iterable<String> getUserForSessionRoles(HttpServletRequest request) {
         User sessionUser = userService.getSessionUser(request);
         return sessionUser.getUserRoles().stream().map(UserRole::getRole).map(Objects::toString).toList();
     }
 
-    @GetMapping("/user")
-    public UserDetailsDTO getUserForSession(HttpServletRequest request) {
+    @GetMapping("/user/player")
+    public Long getPlayerForUser(HttpServletRequest request) {
         User sessionUser = userService.getSessionUser(request);
-        return UserService.createUserDetailsDTO(sessionUser, sessionUser.getPlayer());
+        return sessionUser.getPlayer() != null ? sessionUser.getPlayer().getId() : -1;
     }
 
     @GetMapping("/user/{id}")

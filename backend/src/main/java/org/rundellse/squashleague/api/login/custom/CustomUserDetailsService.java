@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -31,6 +32,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<UserRole> userRoles) {
         return userRoles.stream()
                 .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().toString()))
-                .toList();
+                .collect(Collectors.toSet());
     }
 }

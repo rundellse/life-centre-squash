@@ -3,12 +3,24 @@ package org.rundellse.squashleague;
 import jakarta.servlet.http.HttpServletResponse;
 import org.rundellse.squashleague.api.login.custom.CustomUserDetailsService;
 import org.rundellse.squashleague.api.player.PlayerController;
+import org.rundellse.squashleague.model.Player;
+import org.rundellse.squashleague.model.Season;
 import org.rundellse.squashleague.model.user.Role;
+import org.rundellse.squashleague.model.user.User;
+import org.rundellse.squashleague.model.user.UserRole;
+import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.rundellse.squashleague.persistence.RoleRepository;
+import org.rundellse.squashleague.persistence.SeasonRepository;
+import org.rundellse.squashleague.persistence.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpMethod;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -27,10 +39,15 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import java.time.LocalDate;
+
 @Configuration
 @EnableWebSecurity
 @EnableJpaRepositories
 public class SquashLeagueConfiguration implements WebMvcConfigurer {
+
+    @Value("${squash.league.run.init}")
+    private boolean runInit;
 
     @Bean
     public DispatcherServlet dispatcherServlet() {
@@ -74,11 +91,13 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:8081/")
                         .allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name())
-                        .allowCredentials(true);
+                        .allowedHeaders("*")
+                        .allowCredentials(true)
+                        .maxAge(14400);
             }
         };
     }
@@ -102,6 +121,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.POST, "/table/**").hasAuthority(Role.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/user/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
+                                .requestMatchers(HttpMethod.POST, "/match/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
                 )
                 .logout(logoutConfigurer ->
                         logoutConfigurer
@@ -123,60 +143,62 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
 
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    @Autowired
-//    private RoleRepository roleRepository;
-//
-//    @Autowired
-//    private PlayerRepository playerRepository;
-//
-//    @Bean
-//    public CommandLineRunner init() {
-//        userRepository.deleteAll();
-//        User user;
-//        Optional<User> userOptional = userRepository.findById(1L);
-//        if (userOptional.isPresent()) {
-//            user = userOptional.get();
-//        } else {
-//            user = new User();
-//            user.setName("user");
-//            user.setEmail("user@email.com");
-//            user.setPassword(passwordEncoder().encode("password"));
-//        }
-//        User admin = new User();
-//        admin.setName("admin");
-//        admin.setEmail("admin@email.com");
-//        admin.setPassword(passwordEncoder().encode("password"));
-//
-//        UserRole userRole = roleRepository.findByName(Role.ROLE_USER.toString());
-//        if (userRole == null) {
-//            roleRepository.save(new UserRole(Role.ROLE_USER.toString()));
-//        }
-//
-//        UserRole adminRole = roleRepository.findByName(Role.ROLE_ADMIN.toString());
-//        if (adminRole == null) {
-//            roleRepository.save(new UserRole(Role.ROLE_ADMIN.toString()));
-//        }
-//
-//        user.getUserRoles().add(userRole);
-//        admin.getUserRoles().add(adminRole);
-//
-//        return args -> {
-//            userRepository.save(user);
-//            userRepository.save(admin);
-//            for (int i = 0; i < 24; i++) {
-//                playerRepository.save(new Player(
-//                        "Player " + i,
-//                        "email"+i+"@email.com",
-//                        "07777777"+i,
-//                        "Availibility"+i,
-//                        i%4,
-//                        false,
-//                        false
-//                ));
-//            }
-//        };
-//    }
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private SeasonRepository seasonRepository;
+
+    @Bean
+    public CommandLineRunner init() {
+        if (!runInit) {
+            // Do nothing
+            return args -> {
+            };
+        }
+
+        System.out.println("Running data init");
+        userRepository.deleteAll();
+        seasonRepository.deleteAll();
+        roleRepository.deleteAll();
+        User user;
+        user = new User();
+        user.setName("user");
+        user.setEmail("user@email.com");
+        user.setPassword(passwordEncoder().encode("password"));
+        User admin = new User();
+        admin.setName("admin");
+        admin.setEmail("admin@email.com");
+        admin.setPassword(passwordEncoder().encode("password"));
+
+        return args -> {
+            Season newSeason = new Season(LocalDate.now(), LocalDate.now().plusDays(7));
+            seasonRepository.save(newSeason);
+            UserRole userRole = roleRepository.save(new UserRole(Role.ROLE_USER));
+            UserRole adminRole = roleRepository.save(new UserRole(Role.ROLE_ADMIN));
+            user.getUserRoles().add(userRole);
+            admin.getUserRoles().add(adminRole);
+
+            for (int i = 0; i < 24; i++) {
+                playerRepository.save(new Player(
+                        "Player " + i,
+                        "email"+i+"@email.com",
+                        "07777777"+i,
+                        "Availability"+i,
+                        i%4,
+                        false,
+                        false
+                ));
+            }
+            admin.setPlayer(playerRepository.findById(1L).get());
+            userRepository.save(user);
+            userRepository.save(admin);
+        };
+    }
 }

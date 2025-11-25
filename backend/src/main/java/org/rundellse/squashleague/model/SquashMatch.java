@@ -16,11 +16,11 @@ public class SquashMatch {
     private Season season;
     private Integer division;
 
-    @OneToOne
-    @MapsId
+    @ManyToOne
+    @JoinColumn(name = "home_player_id")
     private Player homePlayer;
-    @OneToOne
-    @MapsId
+    @ManyToOne
+    @JoinColumn(name = "away_player_id")
     private Player awayPlayer;
 
     @Column(name = "home_player_points")
@@ -143,5 +143,21 @@ public class SquashMatch {
 
     public void setSquashGames(List<SquashGame> squashGames) {
         this.squashGames = squashGames;
+    }
+
+    @Override
+    public String toString() {
+        return "SquashMatch{" +
+                "id=" + id +
+                ", season=" + season +
+                ", division=" + division +
+                ", homePlayer=" + homePlayer.getId() +
+                ", awayPlayer=" + awayPlayer.getId() +
+                ", homePlayerPoints=" + homePlayerPoints +
+                ", awayPlayerPoints=" + awayPlayerPoints +
+                ", homePlayerMatchScore=" + homePlayerMatchScore +
+                ", awayPlayerMatchScore=" + awayPlayerMatchScore +
+                ", squashGames=" + squashGames +
+                '}';
     }
 }

@@ -39,7 +39,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        // There is no requirement in the model for a User to have a player, but for now everyone will, users are/will be
+        // There is (almost) no requirement in the model for a User to have a player, but for now everyone will, users are/will be
         // created one-to-one with players, and both admins are players. If there is a legitimate User in future with no
         // corresponding Player this will need to be updated.
         Player player = user.getPlayer();
@@ -127,6 +127,10 @@ public class UserService {
         }
 
         // TODO Password policy
+        if (newPassword.length() < 6) {
+            return false;
+        }
+
         return true;
     }
 

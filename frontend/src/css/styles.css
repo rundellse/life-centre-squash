@@ -4,22 +4,13 @@
     display: block;
     margin-top: 80px;
     margin-left: 10%;
+    margin-right: 10%;
     margin-bottom: 100px;
 
     width: fit-content;
     min-width: fit-content;
     min-height: 300px;
 }
-
-/* #table-block {
-    max-width: 100%;
-    margin: 32px auto;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(44,62,80,0.07);
-    padding: 32px;
-    min-height: 300px;
-} */
 
 .table-heading {
     margin-top: 60px;
@@ -69,6 +60,7 @@ tr, th, td {
 
 .game-cell {
     width: 50px;
+    text-align: center;
 }
 
 .self-game-cell {
@@ -204,6 +196,10 @@ label {
     margin-top: 10px;
 }
 
-input {
-    margin-top: 5px;
+.game-score-input {
+    width: 80%;
+    height: 80%;
+    text-align: center;
+    font-size: 1.4rem;
+    background-color: #f2f2f2;
 }
