@@ -10,34 +10,40 @@
     <body>
         <h1>Plymouth Life Centre Squash League</h1>
         <nav>
-            <a href="index.html">League</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-            <a href="admin.html">Admin</a>
-            <a href="tableAdmin.html">Table Admin</a>
+            <div class="nav-left">
+                <a href="index.html">League</a>
+                <a href="about.html">About</a>
+                <a href="admin.html" id="admin-link" hidden="">Admin</a>
+                <a href="tableAdmin.html" id="table-admin-link" hidden="">Table Admin</a>
+            </div>
+            <div class="nav-right">
+                <a href="login.html">Login</a>
+                <a href="user-management.html">Account</a>
+                <button id="logout-button">Logout</button>
+            </div>
         </nav>
 
         <form id="add-player-form">
             <h2>Add New Player</h2>
-            <label for="name-field">Name</label>
+            <label for="name-field" class="admin-label">Name</label>
             <input id="name-field" type="text"/>
-            <br/><br/>
-            <label for="phone-field">Phone Number</label>
+
+            <label for="phone-field" class="admin-label">Phone Number</label>
             <input id="phone-field" type="text"/>
-            <br/><br/>
-            <label for="email-field">Email</label>
+
+            <label for="email-field" class="admin-label">Email</label>
             <input id="email-field" type="text"/>
-            <br/><br/>
-            <label for="division-field">Division</label>
+
+            <label for="division-field" class="admin-label">Division</label>
             <input id="division-field" type="number"/>
-            <br/><br/>
-            <label for="availability-field">Availability Notes</label>
+
+            <label for="availability-field" class="admin-label">Availability Notes</label>
             <textarea id="availability-field"></textarea>
-            <br/><br/>
-            <label for="red-flagged-field">Red-Flagged</label>
+
+            <label for="red-flagged-field" class="admin-label">Red-Flagged</label>
             <input id="red-flagged-field" type="checkbox"/>
-            <br/><br/>
-            <label for="anonymise-field">Anonymise Player</label>
+
+            <label for="anonymise-field" class="admin-label">Anonymise Player</label>
             <input id="anonymise-field" type="checkbox"/>
             <button type="button" onclick="" id="new-player-button">Save Player</button>
         </form>
@@ -60,25 +66,25 @@
                 <!-- List populated with player list from server -->
             </select>
             <br/><br/><br/>
-            <label for="name-update-field">Name</label>
+            <label for="name-update-field" class="admin-label">Name</label>
             <input id="name-update-field" type="text" autocomplete="off"/>
-            <br/><br/>
-            <label for="phone-update-field">Phone Number</label>
+
+            <label for="phone-update-field" class="admin-label">Phone Number</label>
             <input id="phone-update-field" type="text" autocomplete="off"/>
-            <br/><br/>
-            <label for="email-update-field">Email</label>
+
+            <label for="email-update-field" class="admin-label">Email</label>
             <input id="email-update-field" type="text" autocomplete="off"/>
-            <br/><br/>
-            <label for="division-update-field">Division</label>
+
+            <label for="division-update-field" class="admin-label">Division</label>
             <input id="division-update-field" type="number" autocomplete="off"/>
-            <br/><br/>
-            <label for="availability-update-field">Availability Notes</label>
+
+            <label for="availability-update-field" class="admin-label">Availability Notes</label>
             <textarea id="availability-update-field" autocomplete="off"></textarea>
-            <br/><br/>
-            <label for="red-flagged-update-field">Red-Flagged</label>
+
+            <label for="red-flagged-update-field" class="admin-label">Red-Flagged</label>
             <input id="red-flagged-update-field" type="checkbox"/>
-            <br/><br/>
-            <label for="anonymise-update-field">Anonymise Player</label>
+
+            <label for="anonymise-update-field" class="admin-label">Anonymise Player</label>
             <input id="anonymise-update-field" type="checkbox"/>
 
             <button type="button" onclick="" id="update-player-button">Update Player</button>

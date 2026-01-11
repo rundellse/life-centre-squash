@@ -1,11 +1,38 @@
 
 const playersUrl = 'http://localhost:8080/api/players';
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    await checkUserSessionForPermissions();
     configurePlayerAdd();
     configurePlayerDelete();
     configurePlayerUpdate();
 });
+
+// Checks like this are why this page should be served from the server or be an SPA.
+async function checkUserSessionForPermissions() {
+    fetch('http://localhost:8080/api/user/roles', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (response.status == 403) {
+            window.location = 'login.html';
+        }
+        return response;
+    })
+    .then(response => response.json())
+    .then(roles => {
+        roles.forEach(role => {
+            if (role == 'ROLE_ADMIN') {
+                document.getElementById('admin-link').removeAttribute('hidden');
+                document.getElementById('table-admin-link').removeAttribute('hidden');
+            }
+        })
+    })
+    .catch(error => console.error('Error while checking user roles: ', error));
+
+    return Promise.resolve();
+}
 
 
 function configurePlayerAdd() {

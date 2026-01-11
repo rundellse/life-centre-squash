@@ -31,6 +31,7 @@ async function checkUserSessionForPermissions() {
         roles.forEach(role => {
             if (role == 'ROLE_ADMIN') {
                 document.getElementById('admin-link').removeAttribute('hidden');
+                document.getElementById('table-admin-link').removeAttribute('hidden');
             }
         })
     })
@@ -165,7 +166,7 @@ function addPlayerRowToDivisionTable(index, division, divisionLength, player, di
     letterCell.innerText = String.fromCharCode(65 + index);
     row.appendChild(letterCell);
 
-    const nameCell = document.createElement('th');
+    const nameCell = document.createElement('td');
     nameCell.className = 'name-cell';
     nameCell.innerText = player.name;
     // const availabilityPopup = document.createElement('div');
@@ -182,7 +183,7 @@ function addPlayerRowToDivisionTable(index, division, divisionLength, player, di
     // nameCell.appendChild(availabilityPopup);
     row.appendChild(nameCell);
 
-    const detailsCell = document.createElement('th');
+    const detailsCell = document.createElement('td');
     detailsCell.className = 'details-cell';
 
     const phoneNumberDiv = document.createElement('div');
@@ -201,6 +202,10 @@ function addPlayerRowToDivisionTable(index, division, divisionLength, player, di
     gameCells.forEach(cell => row.appendChild(cell));
 
     divisionTable.appendChild(row);
+
+    if (player.isRedFlagged == true) {
+        row.classList.add("red-flag");
+    }
 }
 
 function assembleGameCellsForRow(rowIndex, division, divisionLength, rowPlayerId, userPlayerIndex) {

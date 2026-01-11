@@ -30,6 +30,8 @@ tr, th, td {
     height: 45px;
     min-width: 50px;
     padding-inline: 5px 5px;
+    
+    text-align: center;
 }
 
 .top-letter-cell {
@@ -45,6 +47,17 @@ tr, th, td {
 .name-cell {
     width: 280px;
     min-width: fit-content;
+
+    font-weight: bold;
+}
+
+.admin-details-cell, 
+.admin-name-cell {
+    width: 280px;
+    min-width: fit-content;
+
+    font-weight: bold;
+    text-align: center;
 }
 
 .phone-number-div {
@@ -74,6 +87,10 @@ tr, th, td {
     background-color: lightgray;
 
     display: none;
+}
+
+tr.red-flag>td {
+    color: crimson;
 }
 /* Table end */
 

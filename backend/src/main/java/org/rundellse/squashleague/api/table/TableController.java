@@ -1,6 +1,6 @@
 package org.rundellse.squashleague.api.table;
 
-import org.rundellse.squashleague.api.player.dto.BulkPlayerUpdateDTO;
+import org.rundellse.squashleague.api.table.dto.BulkPlayerUpdateDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.service.PdfService;
@@ -46,7 +46,7 @@ public class TableController {
         Set<Player> updatedPlayers = new HashSet<>();
 
         for (BulkPlayerUpdateDTO update : updates) {
-            LOG.trace("Updating player with ID: {}, to Division: {}", update.id(), update.division());
+            LOG.trace("Updating player with ID: {}, to Division: {}. Red-flagged: {}", update.id(), update.division(), update.redFlag());
             Optional<Player> playerOptional = playerRepository.findById(update.id());
             if (playerOptional.isEmpty()) {
                 LOG.error("Attempting to update Division to {} on Player with ID: {}, but no Player found for ID. Skipping.", update.division(), update.id());
@@ -55,6 +55,7 @@ public class TableController {
 
             Player player = playerOptional.get();
             player.setDivision(update.division());
+            player.setRedFlagged(update.redFlag());
             updatedPlayers.add(player);
             playerRepository.saveAll(updatedPlayers);
         }

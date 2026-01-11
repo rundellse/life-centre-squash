@@ -7,9 +7,10 @@ class Division {
 }
 
 class DivisionUpdate {
-    constructor(id, division) {
+    constructor(id, division, redFlag) {
         this.id = id;
         this.division = division;
+        this.redFlag = redFlag;
     }
 }
 
@@ -77,14 +78,14 @@ function addPlayerRowToDivisionTable(index, player, divisionTable) {
 
     const row = document.createElement('tr');
     row.id = String(player.id);
-    const nameCell = document.createElement('th');
-    nameCell.className = 'name-div';
+    const nameCell = document.createElement('td');
+    nameCell.className = 'admin-name-cell';
     nameCell.innerText = player.name;
 
     row.appendChild(nameCell);
 
-    const detailsCell = document.createElement('th');
-    detailsCell.className = 'details-cell';
+    const detailsCell = document.createElement('td');
+    detailsCell.className = 'admin-details-cell';
 
     const phoneNumberDiv = document.createElement('div');
     phoneNumberDiv.className = 'phone-number-div';
@@ -114,6 +115,7 @@ function addPlayerRowToDivisionTable(index, player, divisionTable) {
     const redFlagButtonCell = document.createElement('td');
     const redFlagButton = document.createElement('button');
     redFlagButton.innerHTML = 'Red Flag';
+    redFlagButton.onclick = redFlagPlayerToggle.bind(thisArg = redFlagButton)
     redFlagButtonCell.appendChild(redFlagButton);
 
     row.innerHTML = letterCell + row.innerHTML;
@@ -121,6 +123,20 @@ function addPlayerRowToDivisionTable(index, player, divisionTable) {
     row.appendChild(relegateButtonCell);
     row.appendChild(redFlagButtonCell);
     divisionTable.appendChild(row);
+
+    if (player.isRedFlagged == true) {
+        redFlagPlayerToggle.call(redFlagButton);
+    }
+}
+
+function redFlagPlayerToggle() {
+    const row = this.parentElement.parentElement;
+
+    if (row.classList.contains("red-flag")) {
+        row.classList.remove("red-flag");
+    } else {
+        row.classList.add("red-flag");
+    }
 }
 
 function changeTable(divisionIndexChange) {
@@ -154,7 +170,7 @@ function updateDivisions() {
             if (tr.className.includes('table-top-row')) {
                 return;
             }
-            divisionUpdates.push(new DivisionUpdate(tr.id, i));
+            divisionUpdates.push(new DivisionUpdate(tr.id, i, tr.classList.contains("red-flag")));
         });
     }
 
