@@ -1,3 +1,9 @@
+const userRolesUrl = API_CONFIG.API_BASE_URL + '/user/roles';
+const playerUrl = API_CONFIG.API_BASE_URL + '/user/player';
+const playersUrl = API_CONFIG.API_BASE_URL + '/players';
+const logoutUrl = API_CONFIG.API_BASE_URL + '/logout';
+const matchUrl = API_CONFIG.API_BASE_URL + '/api/match';
+
 let userPlayerId = -1;
 
 class Division {
@@ -16,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Checks like this are why this page should be served from the server or be an SPA.
 async function checkUserSessionForPermissions() {
-    fetch('http://localhost:8080/api/user/roles', {
+    fetch(userRolesUrl, {
         method: 'GET',
         credentials: 'include'
     })
@@ -41,7 +47,7 @@ async function checkUserSessionForPermissions() {
 }
 
 async function getPlayerForUser() {
-    fetch('http://localhost:8080/api/user/player', {
+    fetch(playerUrl, {
         method: 'GET',
         credentials: 'include'
     })
@@ -56,8 +62,6 @@ function configureLogoutButton() {
 }
 
 function logout() {
-    const logoutUrl = 'http://localhost:8080/api/logout';
-
     fetch(logoutUrl, {
         method: 'POST',
         credentials: 'include',
@@ -74,11 +78,10 @@ function logout() {
 }
 
 function loadTables() {
-    const apiUrl = 'http://localhost:8080/api/players';
     const tableBlock = document.getElementById('table-block');
     const divisions = [];
 
-    fetch(apiUrl, {
+    fetch(playersUrl, {
         method: 'GET',
         credentials: 'include'
     })
@@ -252,7 +255,6 @@ function createGamePointInput(rowPlayerId, columnIndex, columnPlayerId) {
 }
 
 function updateMatchPoints(event) {
-    const matchUrl = 'http://localhost:8080/api/match';
     const requestBody = JSON.stringify({
             homePlayerId: event.target.dataset.rowPlayerId,
             awayPlayerId: event.target.dataset.columnPlayerId,

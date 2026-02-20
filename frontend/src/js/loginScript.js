@@ -1,5 +1,5 @@
 
-const loginUrl = 'http://localhost:8080/api/login';
+const loginUrl = API_CONFIG.API_BASE_URL + '/login';
 
 document.addEventListener('DOMContentLoaded', function() {
     const loginButton = document.getElementById("login-button");

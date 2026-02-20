@@ -1,5 +1,7 @@
 
-const playersUrl = 'http://localhost:8080/api/players';
+const playersUrl = API_CONFIG.API_BASE_URL + '/players';
+const userRoleUrl = API_CONFIG.API_BASE_URL + '/user/roles';
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     await checkUserSessionForPermissions();
@@ -8,9 +10,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     configurePlayerUpdate();
 });
 
+
 // Checks like this are why this page should be served from the server or be an SPA.
 async function checkUserSessionForPermissions() {
-    fetch('http://localhost:8080/api/user/roles', {
+    fetch(userRoleUrl, {
         method: 'GET',
         credentials: 'include'
     })
@@ -142,7 +145,7 @@ function updatePlayerLoad() {
     const updateRedFlagged = document.getElementById('red-flagged-update-field');
     const updateAnonymise = document.getElementById('anonymise-update-field');
 
-    const url = 'http://localhost:8080/api/players/' + document.getElementById('update-player-select').value;
+    const url = API_CONFIG.API_BASE_URL + '/players/' + document.getElementById('update-player-select').value;
 
     fetch(url, {
         method: 'GET',
@@ -170,7 +173,7 @@ function updatePlayer() {
     const updateRedFlagged = document.getElementById('red-flagged-update-field').checked;
     const updateAnonymise = document.getElementById('anonymise-update-field').checked;
 
-    const url = 'http://localhost:8080/api/players/' + document.getElementById('update-player-select').value;
+    const url = API_CONFIG.API_BASE_URL + '/players/' + document.getElementById('update-player-select').value;
     fetch(url, {
         method: 'POST',
         credentials: 'include',

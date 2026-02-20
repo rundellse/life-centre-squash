@@ -1,4 +1,4 @@
-const passwordUrl = 'http://localhost:8080/api/user/password';
+const passwordUrl = API_CONFIG.API_BASE_URL + '/user/password';
 var userId;
 
 document.addEventListener('DOMContentLoaded', function() {

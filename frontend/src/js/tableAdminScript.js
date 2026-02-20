@@ -1,3 +1,7 @@
+const playersUrl = API_CONFIG.API_BASE_URL + '/api/players';
+const newSeasonUrl = API_CONFIG.API_BASE_URL + '/table/new-season';
+const updateTableUrl = API_CONFIG.API_BASE_URL + '/table/update-table';
+const generatePdfUrl = API_CONFIG.API_BASE_URL + '/table/generate-pdf';
 
 class Division {
     constructor(divisionNum) {
@@ -24,11 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function populateAdminTable() {
-    const apiUrl = 'http://localhost:8080/api/players';
     const tableBlock = document.querySelector('#table-block');
     const divisions = [];
 
-    fetch(apiUrl, {
+    fetch(playersUrl, {
         method: 'GET',
         credentials: 'include'
     })
@@ -175,7 +178,7 @@ function updateDivisions() {
     }
 
     const updateBody = JSON.stringify(divisionUpdates)
-    fetch('http://localhost:8080/api/table/update-table', {
+    fetch(updateTableUrl, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -204,7 +207,7 @@ function newSeason() {
     }
 
     console.log('Creating a new Season, doing promotions, relegations etc.. New end date: ' + newSeasonEndDate);
-    fetch('http://localhost:8080/api/table/new-season', {
+    fetch(newSeasonUrl, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -226,7 +229,7 @@ function generatePdf() {
         alert("Error while trying to save table before pdf generation: " + error);
     }
 
-    fetch('http://localhost:8080/api/table/generate-pdf', {
+    fetch(generatePdfUrl, {
         method: 'GET',
         credentials: 'include'
     })
