@@ -1,6 +1,7 @@
 package org.rundellse.squashleague.api.player;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.rundellse.squashleague.api.player.dto.DivisionDTO;
 import org.rundellse.squashleague.api.player.dto.PlayerDetailsDTO;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
@@ -102,5 +103,12 @@ public class PlayerController {
                 player.isAnonymised(),
                 player.isRedFlagged()
         );
+    }
+
+    @GetMapping("/players/divisions")
+    @ResponseStatus(HttpStatus.OK)
+    public Iterable<DivisionDTO> retrievePlayersInDivisions(HttpServletRequest httpServletRequest) {
+        LOG.trace("Getting all players in Divisions");
+        return playerService.retrieveAllPlayersInDivisions(httpServletRequest);
     }
 }

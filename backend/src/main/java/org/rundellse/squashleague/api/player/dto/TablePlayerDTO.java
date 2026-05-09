@@ -1,5 +1,7 @@
 package org.rundellse.squashleague.api.player.dto;
 
+import java.util.List;
+
 public record TablePlayerDTO (
     Long id,
     String name,
@@ -7,5 +9,6 @@ public record TablePlayerDTO (
     String phoneNumber,
     String availabilityNotes,
     Integer division,
-    boolean isRedFlagged
+    boolean isRedFlagged,
+    List<String> matchPoints
 ){}

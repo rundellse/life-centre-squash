@@ -1,8 +1,9 @@
 const userRolesUrl = API_CONFIG.API_BASE_URL + '/user/roles';
 const playerUrl = API_CONFIG.API_BASE_URL + '/user/player';
-const playersUrl = API_CONFIG.API_BASE_URL + '/players';
+const playersDivisionsUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
 const logoutUrl = API_CONFIG.API_BASE_URL + '/logout';
-const matchUrl = API_CONFIG.API_BASE_URL + '/api/match';
+const matchUrl = API_CONFIG.API_BASE_URL + '/match';
+var isAdmin = false;
 
 let userPlayerId = -1;
 
@@ -14,46 +15,54 @@ class Division {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    await checkUserSessionForPermissions();
-    await getPlayerForUser();
-    configureLogoutButton();
-    loadTables();
+    try {
+        await checkUserSessionForPermissions();
+        await getPlayerForUser();
+        configureLogoutButton();
+        await loadTables();
+
+    } catch (error) {
+        console.error('Page initialization failed:', error);
+    }
 });
 
 // Checks like this are why this page should be served from the server or be an SPA.
 async function checkUserSessionForPermissions() {
-    fetch(userRolesUrl, {
+    const response = await fetch(userRolesUrl, {
         method: 'GET',
         credentials: 'include'
-    })
-    .then(response => {
-        if (response.status == 403) {
-            window.location = 'login.html';
-        }
-        return response;
-    })
-    .then(response => response.json())
-    .then(roles => {
-        roles.forEach(role => {
-            if (role == 'ROLE_ADMIN') {
-                document.getElementById('admin-link').removeAttribute('hidden');
-                document.getElementById('table-admin-link').removeAttribute('hidden');
-            }
-        })
-    })
-    .catch(error => console.error('Error while checking user roles: ', error));
+    });
 
-    return Promise.resolve();
+    if (response.status === 403) {
+        window.location = 'login.html';
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch roles: ${response.status}`);
+    }
+
+    const roles = await response.json();
+    roles.forEach(role => {
+        if (role === 'ROLE_ADMIN') {
+            document.getElementById('admin-link').removeAttribute('hidden');
+            document.getElementById('table-admin-link').removeAttribute('hidden');
+            isAdmin = true;
+        }
+    });
 }
 
 async function getPlayerForUser() {
-    fetch(playerUrl, {
+    const response = await fetch(playerUrl, {
         method: 'GET',
         credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(id => userPlayerId = id)
-    .catch(error => console.error('Error while getting player ID: ', error));
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Failed to find Player for the current user. They will not be able to save match results. Response status: ${response.status}`);
+    }
+    
+    userPlayerId = await response.json();
 }
 
 function configureLogoutButton() {
@@ -68,8 +77,8 @@ function logout() {
     })
     .then(response => {
         if (response.status == 200) {
-            alert('Logout completed successfully.');
-            window.location = 'login.html'
+            console.log('Logout completed successfully.');
+            window.location = 'login.html';
         } else {
             throw new Error('Logout not completed. Non-OK response code returned: ' + response.status);
         }
@@ -77,51 +86,52 @@ function logout() {
     .catch(error => console.error('Error while logging out: ', error));
 }
 
-function loadTables() {
-    const tableBlock = document.getElementById('table-block');
-    const divisions = [];
-
-    fetch(playersUrl, {
+async function loadTables() {
+    const response = await fetch(playersDivisionsUrl, {
         method: 'GET',
         credentials: 'include'
     })
-    .then(response => response.json())
-    .then(players => {
-        players.forEach(player => {
-            let divisionNum = player.division;
-            let division = divisions[divisionNum];
-            if (typeof division === 'undefined' || division === null) {
-                division = new Division(divisionNum);
-                divisions[divisionNum] = division;
-            }
-            division.players.push(player);
-        });
-        return divisions;
-    })
-    .then(divisions => {
-        let divisionNum = 0;
+    const divisions = await response.json();
 
-        divisions.forEach(division => {
-            const divisionTitle = document.createElement('h2');
-            divisionTitle.setAttribute('class', 'table-heading')
-            divisionTitle.innerText = getDivisionTitle(divisionNum);
-            tableBlock.appendChild(divisionTitle);
+    // const divisions = groupPlayersByDivision(players);
+    renderDivisionTables(divisions);
+}
 
-            const divisionLength = division.players.length;
-            const divisionTable = document.createElement('table');
-            divisionTable.setAttribute('id', 'playerTable' + division.divisionNum);
-            divisionTable.appendChild(createDivisionTableTopRow(divisionLength));
+function renderDivisionTables(divisions) {
+    const tableBlock = document.getElementById('table-block');
+    tableBlock.textContent = '';
 
-            let userPlayerIndex = findPlayerIndexIfInDivision(division, userPlayerId);
-            for (let i = 0; i < divisionLength; i++) {
-                const player = division.players[i];
-                addPlayerRowToDivisionTable(i, division, divisionLength, player, divisionTable, userPlayerIndex);
-            }
-            tableBlock.appendChild(divisionTable);
-            divisionNum++;
-        })
-    })
-    .catch(error => console.error('Error fetching players:', error));
+    divisions.forEach(division => {
+        tableBlock.appendChild(createDivisionSection(division));
+    });
+}
+
+function createDivisionSection(division) {
+    const divisionSection = document.createElement('div');
+
+    const divisionTitle = document.createElement('h2');
+    divisionTitle.class = 'table-heading';
+    divisionTitle.textContent = getDivisionTitle(division.divisionRank);
+
+    const divisionTable = document.createElement('table');
+    divisionTable.id = 'playerTable' + division.divisionNum;
+    divisionTable.appendChild(createDivisionTable(division));
+
+    divisionSection.appendChild(divisionTitle);
+    divisionSection.appendChild(divisionTable);
+    return divisionSection;
+}
+
+function createDivisionTable(division) {
+    const divisionTable = document.createElement('table');
+    divisionTable.id = 'playerTable' + division.divisionNum;
+    divisionTable.appendChild(createDivisionTableTopRow(division.players.length));
+
+    division.players.forEach((player, rowIndex) => {
+        divisionTable.appendChild(createDivisionTablePlayerRow(division, rowIndex, player));
+    });
+
+    return divisionTable;
 }
 
 function findPlayerIndexIfInDivision(division, playerId) {
@@ -153,7 +163,7 @@ function createDivisionTableTopRow(divisionLength) {
         const td = document.createElement('td');
         td.className = 'top-letter-cell';
         // Capitals from A...
-        td.innerText = String.fromCharCode(65 + i);
+        td.textContent = String.fromCharCode(65 + i);
         tr.appendChild(td);
     }
 
@@ -161,82 +171,61 @@ function createDivisionTableTopRow(divisionLength) {
     return thead;
 }
 
-function addPlayerRowToDivisionTable(index, division, divisionLength, player, divisionTable, userPlayerIndex) {
+function createDivisionTablePlayerRow(division, rowIndex, player) {
     const row = document.createElement('tr');
+
+    row.appendChild(createTextCell(String.fromCharCode(65 + rowIndex), 'side-letter-cell'));
+    row.appendChild(createTextCell(player.name, 'name-cell'));
     
-    const letterCell = document.createElement('td');
-    letterCell.className = 'side-letter-cell';
-    letterCell.innerText = String.fromCharCode(65 + index);
-    row.appendChild(letterCell);
-
-    const nameCell = document.createElement('td');
-    nameCell.className = 'name-cell';
-    nameCell.innerText = player.name;
-    // const availabilityPopup = document.createElement('div');
-    // availabilityPopup.className = 'availability-div';
-    // availabilityPopup.innerText = player.availabilityNotes;
-
-    // nameCell.addEventListener('mouseenter', () => {
-    //     availabilityPopup.style.display = 'block';
-    // });
-    // nameCell.addEventListener('mouseleave', () => {
-    //     availabilityPopup.style.display = 'none';
-    // });
-
-    // nameCell.appendChild(availabilityPopup);
-    row.appendChild(nameCell);
-
     const detailsCell = document.createElement('td');
     detailsCell.className = 'details-cell';
-
-    const phoneNumberDiv = document.createElement('div');
-    phoneNumberDiv.className = 'phone-number-div';
-    phoneNumberDiv.innerHTML = player.phoneNumber;
-
-    const emailDiv = document.createElement('div');
-    emailDiv.className = 'email-div';
-    emailDiv.innerHTML = player.email;
-
-    detailsCell.appendChild(phoneNumberDiv);
-    detailsCell.appendChild(emailDiv);
+    detailsCell.appendChild(createTextCell(player.phoneNumber, 'phone-number-div'));
+    detailsCell.appendChild(createTextCell(player.email, 'email-div'));
     row.appendChild(detailsCell);
 
-    const gameCells = assembleGameCellsForRow(index, division, divisionLength, player.id, userPlayerIndex);
-    gameCells.forEach(cell => row.appendChild(cell));
+    const userPlayerIndex = findPlayerIndexIfInDivision(division, userPlayerId);
+    division.players.forEach((columnPlayer, columnIndex) => {
+        row.appendChild(createGameCell(rowIndex, columnIndex, player.id, columnPlayer.id, userPlayerIndex, player.matchPoints[columnIndex]));
+    });
 
-    divisionTable.appendChild(row);
-
-    if (player.isRedFlagged == true) {
-        row.classList.add("red-flag");
-    }
+    return row;
 }
 
-function assembleGameCellsForRow(rowIndex, division, divisionLength, rowPlayerId, userPlayerIndex) {
-    let gameCells = [];
-    // i here is the x-axis, moving along the row
-    for (let columnIndex = 0; columnIndex < divisionLength; columnIndex++) {
-        const gameCell = document.createElement("td");
-        gameCell.className = "game-cell";
+function createGameCell(rowIndex, columnIndex, rowPlayerId, columnPlayerId, userPlayerIndex, point) {
+    var pointValue = point;
+    if (point === null || point === '') {
+        pointValue = '';
+    } 
 
-        const columnPlayerId = division.players[columnIndex].id;
+    const gameCell = document.createElement('td');
+    gameCell.className = 'game-cell';
 
-        if (columnIndex === rowIndex) {
-            gameCell.className = gameCell.className + ', self-game-cell';
-        } else if (columnIndex === userPlayerIndex) {
-            // Other player's points input
-            gameCell.appendChild(createGamePointInput(rowPlayerId, columnIndex, columnPlayerId));
-        } else if (rowIndex === userPlayerIndex) {
-            // Our player's points input
-            gameCell.appendChild(createGamePointInput(rowPlayerId, columnIndex, columnPlayerId));
-        }
-
-        gameCells.push(gameCell);
+    if (columnIndex === rowIndex) {
+        gameCell.className = gameCell.className + ' self-game-cell';
+    } else if (isAdmin) {
+        // Admins can input anywhere!
+        gameCell.appendChild(createGamePointInput(rowPlayerId, columnIndex, columnPlayerId, pointValue));
+    } else if (columnIndex === userPlayerIndex) {
+        // Other player's points input
+        gameCell.appendChild(createGamePointInput(rowPlayerId, columnIndex, columnPlayerId, pointValue));
+    } else if (rowIndex === userPlayerIndex) {
+        // Our player's points input
+        gameCell.appendChild(createGamePointInput(rowPlayerId, columnIndex, columnPlayerId, pointValue));
+    } else {
+        gameCell.innerText = pointValue;
     }
 
-    return gameCells;
+    return gameCell;
 }
 
-function createGamePointInput(rowPlayerId, columnIndex, columnPlayerId) {
+function createTextCell(text, className) {
+    const td = document.createElement('td');
+    td.className = className;
+    td.textContent = text;
+    return td;
+}
+
+function createGamePointInput(rowPlayerId, columnIndex, columnPlayerId, pointValue) {
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'game-score-input';
@@ -251,13 +240,14 @@ function createGamePointInput(rowPlayerId, columnIndex, columnPlayerId) {
     };
     input.onchange = updateMatchPoints;
 
+    input.value = pointValue
     return input;
 }
 
 function updateMatchPoints(event) {
     const requestBody = JSON.stringify({
-            homePlayerId: event.target.dataset.rowPlayerId,
-            awayPlayerId: event.target.dataset.columnPlayerId,
+            rowPlayerId: event.target.dataset.rowPlayerId,
+            columnPlayerId: event.target.dataset.columnPlayerId,
             points: event.target.value
         });
 
@@ -276,5 +266,5 @@ function updateMatchPoints(event) {
             alert('Error while trying to save Match Points, if this continues to occur please contact us (\'About\' page).');
         }
     })
-    .catch(error => console.error('Error while logging out: ', error));
+    .catch(error => console.error('Error while trying to save Match points: ', error));
 }

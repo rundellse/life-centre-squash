@@ -1,8 +1,8 @@
 package org.rundellse.squashleague.api.game.dto;
 
 public record MatchDTO(
-        long homePlayerId,
-        long awayPlayerId,
+        long rowPlayerId,
+        long columnPlayerId,
         int points
 //        int homePlayerPoints,
 //        int awayPlayerPoints

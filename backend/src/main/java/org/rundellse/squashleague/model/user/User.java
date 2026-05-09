@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.rundellse.squashleague.model.Player;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -79,5 +80,18 @@ public class User {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id.equals(user.id) && name.equals(user.name) && email.equals(user.email) && password.equals(user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, password);
     }
 }

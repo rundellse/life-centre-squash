@@ -15,7 +15,7 @@ import org.rundellse.squashleague.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
+import org.springframework.boot.webmvc.autoconfigure.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -33,11 +33,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.time.LocalDate;
 
@@ -56,8 +54,8 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
     @Bean
     public DispatcherServletRegistrationBean dispatcherServletRegistration() {
-        // Prepend all api paths with '/api/'. Done simply for clarity.
-        return new DispatcherServletRegistrationBean(dispatcherServlet(), "/api/");
+        // Prepend all api paths with '/api'. Done simply for clarity.
+        return new DispatcherServletRegistrationBean(dispatcherServlet(), "/api");
     }
 
     @Bean
@@ -77,8 +75,8 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(passwordEncoder);
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(daoAuthenticationProvider);
     }
 
@@ -125,7 +123,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                 )
                 .logout(logoutConfigurer ->
                         logoutConfigurer
-                                .logoutRequestMatcher(new MvcRequestMatcher(new HandlerMappingIntrospector(), "/logout"))
+                                .logoutUrl("/api/logout")
                                 .logoutSuccessHandler((request, response, authentication) -> {
                                     response.setStatus(HttpServletResponse.SC_OK);
                                     response.setContentType("application/json");
@@ -159,45 +157,57 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     public CommandLineRunner init() {
         if (!runInit) {
             // Do nothing
-            return args -> {
-            };
+            return args -> {};
         }
 
         System.out.println("Running data init");
         userRepository.deleteAll();
         seasonRepository.deleteAll();
         roleRepository.deleteAll();
-        User user;
-        user = new User();
-        user.setName("user");
-        user.setEmail("user@email.com");
-        user.setPassword(passwordEncoder().encode("password"));
-        User admin = new User();
-        admin.setName("admin");
-        admin.setEmail("admin@email.com");
-        admin.setPassword(passwordEncoder().encode("password"));
 
         return args -> {
             Season newSeason = new Season(LocalDate.now(), LocalDate.now().plusDays(7));
             seasonRepository.save(newSeason);
             UserRole userRole = roleRepository.save(new UserRole(Role.ROLE_USER));
             UserRole adminRole = roleRepository.save(new UserRole(Role.ROLE_ADMIN));
-            user.getUserRoles().add(userRole);
-            admin.getUserRoles().add(adminRole);
 
-            for (int i = 0; i < 24; i++) {
-                playerRepository.save(new Player(
+            for (int i = 1; i < 23; i++) {
+                Player player = playerRepository.save(new Player(
                         "Player " + i,
-                        "email"+i+"@email.com",
-                        "07777777"+i,
-                        "Availability"+i,
-                        i%4,
+                        "email" + i + "@email.com",
+                        "07777777" + i,
+                        "Availability" + i,
+                        i % 4,
                         false,
                         false
                 ));
+
+                User user = new User();
+                user.setName("user" + i);
+                user.setEmail("user" + i + "@email.com");
+                user.setPassword(passwordEncoder().encode("password"));
+                user.getUserRoles().add(userRole);
+                user.setPlayer(player);
+                userRepository.save(user);
+
             }
-            admin.setPlayer(playerRepository.findById(1L).get());
-            userRepository.save(user);
+
+            Player adminPlayer = playerRepository.save(new Player(
+                    "Admin Guy ",
+                    "admin@email.com",
+                    "017777777",
+                    "Availability",
+                    0,
+                    false,
+                    false
+            ));
+
+            User admin = new User();
+            admin.setName("admin");
+            admin.setEmail("admin@email.com");
+            admin.setPassword(passwordEncoder().encode("password"));
+            admin.setPlayer(adminPlayer);
+            admin.getUserRoles().add(adminRole);
             userRepository.save(admin);
         };
     }

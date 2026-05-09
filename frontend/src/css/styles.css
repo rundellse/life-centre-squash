@@ -23,14 +23,13 @@
 
 table {
     border: 1px solid black;
+    border-collapse: collapse;
 }
 
 tr, th, td {
     border: 1px solid black;
-    height: 45px;
     min-width: 50px;
-    padding-inline: 5px 5px;
-    
+    padding: 5px;
     text-align: center;
 }
 

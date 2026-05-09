@@ -35,7 +35,6 @@ public class LoginController {
             LOG.debug("Attempted login failed, required email or password field not included.");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email(), loginRequest.password());
         Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
 

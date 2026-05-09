@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 
 @Service
+@Transactional
 public class MatchService {
     private static final Logger LOG = LoggerFactory.getLogger(MatchService.class);
 
@@ -41,53 +42,77 @@ public class MatchService {
         this.playerRepository = playerRepository;
     }
 
-    @Transactional
     public void createOrUpdateGameForCurrentSeason(HttpServletRequest request, MatchDTO matchDTO) {
         LOG.debug("Attempting to create or update Match, {}", matchDTO);
         User sessionUser = userService.getSessionUser(request);
-        boolean userIsAdmin = sessionUser.getUserRoles().stream().map(UserRole::getRole).toList().contains(Role.ROLE_ADMIN);
         Long userPlayerId = sessionUser.getPlayer().getId();
-        long homePlayerId = matchDTO.homePlayerId();
-        long awayPlayerId = matchDTO.awayPlayerId();
+        long rowPlayerId = matchDTO.rowPlayerId();
+        long columnPlayerId = matchDTO.columnPlayerId();
 
-        if (userPlayerId != homePlayerId &&
-                userPlayerId != awayPlayerId &&
-                !userIsAdmin) {
+        boolean userIsAdmin = sessionUser.getUserRoles().stream().map(UserRole::getRole).toList().contains(Role.ROLE_ADMIN);
+        boolean userPlayerIsPlayerInMatch = (userPlayerId == rowPlayerId) || (userPlayerId == columnPlayerId);
+        if (!userPlayerIsPlayerInMatch && !userIsAdmin) {
             LOG.error("Non-admin User attempted to update game for another player. Potential security issue. User: {}, UserPlayer: {}, Game: {}", sessionUser.getId(), userPlayerId, matchDTO);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        Season season = seasonRepository.findSeasonForDate(LocalDate.now());
-        if (season == null) {
-            LOG.error("No Season found for current date.");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Season season = getCurrentSeason();
 
-        Player homePlayer = playerRepository.findById(homePlayerId).orElseThrow();
-        Player awayPlayer = playerRepository.findById(awayPlayerId).orElseThrow();
-        SquashMatch squashMatch = squashMatchRepository.findSquashMatchBySeasonAndHomePlayerAndAwayPlayer(season, homePlayer, awayPlayer);
+        Player rowPlayer = playerRepository.findById(rowPlayerId).orElseThrow();
+        Player columnPlayer = playerRepository.findById(columnPlayerId).orElseThrow();
+        SquashMatch squashMatch = squashMatchRepository.findSquashMatchBySeasonAndHomePlayerAndAwayPlayer(season, rowPlayer, columnPlayer);
         if (squashMatch == null) {
-            squashMatch = squashMatchRepository.findSquashMatchBySeasonAndHomePlayerAndAwayPlayer(season, awayPlayer, homePlayer);
+            squashMatch = squashMatchRepository.findSquashMatchBySeasonAndHomePlayerAndAwayPlayer(season, columnPlayer, rowPlayer);
         }
 
         if (squashMatch == null) {
             LOG.debug("No squash match found, creating a new Match. {}", matchDTO);
             squashMatch = new SquashMatch(
                     season,
-                    homePlayer.getDivision(),
-                    homePlayer,
-                    awayPlayer,
+                    rowPlayer.getDivision(),
+                    rowPlayer,
+                    columnPlayer,
                     null,
                     null
             );
             squashMatchRepository.save(squashMatch);
         }
 
-        if (homePlayerId == userPlayerId) {
+        if (rowPlayerId == squashMatch.getHomePlayer().getId()) {
             squashMatch.setHomePlayerPoints(matchDTO.points());
         } else {
             squashMatch.setAwayPlayerPoints(matchDTO.points());
         }
         LOG.trace("Match updated. Match: {}", squashMatch);
+    }
+
+//    public Map<Long, List<Integer>> getMatchesForDivision(List<Long> playerIds) {
+//        // Format: player(id): game1(points), game2(points) ....
+//        Map<Long, List<Integer>> pointsGrid = new HashMap<>();
+//
+//        Season season = getCurrentSeason();
+//
+//        for (Long playerId : playerIds) {
+//            List<Integer> matchPoints = new ArrayList<>();
+//
+//            List<SquashMatch> matches = squashMatchRepository.findSquashMatchesBySeasonAndHomePlayerAndAwayPlayerIn(season, playerId, playerIds);
+//            for (SquashMatch match : matches) {
+//                matchPoints.add(match.getHomePlayerPoints());
+//            }
+//
+//            pointsGrid.put(playerId, matchPoints);
+//        }
+//
+//        return pointsGrid;
+//    }
+
+    public Season getCurrentSeason() {
+        Season season = seasonRepository.findSeasonForDate(LocalDate.now());
+        if (season == null) {
+            LOG.error("No Season found for current date.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return season;
     }
 }
