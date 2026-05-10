@@ -1,4 +1,4 @@
-const playersUrl = API_CONFIG.API_BASE_URL + '/api/players';
+const playersUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
 const newSeasonUrl = API_CONFIG.API_BASE_URL + '/table/new-season';
 const updateTableUrl = API_CONFIG.API_BASE_URL + '/table/update-table';
 const generatePdfUrl = API_CONFIG.API_BASE_URL + '/table/generate-pdf';
@@ -27,43 +27,41 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function populateAdminTable() {
-    const tableBlock = document.querySelector('#table-block');
+async function populateAdminTable() {
     const divisions = [];
 
-    fetch(playersUrl, {
-        method: 'GET',
-        credentials: 'include'
-    })
-        .then(response => response.json())
-        .then(players => {
-            players.forEach(player => {
-                let divisionNum = player.division;
-                let division = divisions[divisionNum];
-                if (typeof division === 'undefined' || division === null) {
-                    division = new Division(divisionNum);
-                    divisions[divisionNum] = division;
-                }
-                division.players.push(player);
-            });
-            return divisions;
-        })
-        .then(divisions => {
-            divisions.forEach(division => {
-                const divisionLength = division.players.length;
-                const divisionTable = document.createElement('table');
-                divisionTable.setAttribute('id', 'playerTable' + division.divisionNum);
-                divisionTable.innerHTML =`<thead class="table-top-row"><tr><th colspan="6"></th></tr></thead>`
+    try {
+        const response = await fetch(playersUrl, {
+            method: 'GET',
+            credentials: 'include'
+        });
 
-                for (let i = 0; i < divisionLength; i++) {
-                    const player = division.players[i];
-                    addPlayerRowToDivisionTable(i, player, divisionTable);
-                }
-                tableBlock.appendChild(divisionTable);
-                divisionsCount++;
-            })
-        })
-        .catch(error => console.error('Error fetching players:', error));
+        const divisions = await response.json();
+
+        divisions.forEach(division => {
+            const divisionLength = division.players.length;
+            const divisionTable = createNewDivisionTable(division.divisionRank);
+
+            for (let i = 0; i < divisionLength; i++) {
+                const player = division.players[i];
+                addPlayerRowToDivisionTable(i, player, divisionTable);
+            }
+        });
+    } catch (error) {
+        console.error('Error while fetching players:', error);
+    }
+}
+
+function createNewDivisionTable(divisionRank) {
+    const divisionTable = document.createElement('table');
+    divisionTable.className = 'admin-division-table';
+    divisionTable.setAttribute('id', 'playerTable' + divisionRank);
+    divisionTable.innerHTML = `<thead class="table-top-row"><tr><th colspan="6">Division ` + divisionRank + `</th></tr></thead>`;
+
+    const tableBlock = document.querySelector('#table-block');
+    tableBlock.appendChild(divisionTable);
+    divisionsCount++;
+    return divisionTable;
 }
 
 function configureSeasonButtons() {
@@ -147,15 +145,23 @@ function changeTable(divisionIndexChange) {
     const parentTableId = getTableId(row.parentElement);
     const destinationTableId = Number(parentTableId) + divisionIndexChange;
     if (destinationTableId < 0) {
-        console.log('Cannot promote player above top table. Cancelling.')
+        console.log('Cannot promote player above top table. Cancelling.');
         return;
-    } else if (destinationTableId >= divisionsCount) {
-        console.log('Cannot relegate player below bottom table. Cancelling.')
-        return;
+    } else if (destinationTableId == divisionsCount) {
+            const newTable = createNewDivisionTable(destinationTableId);
+    } else {
+        console.log('Cannot relegate more than one table below the bottom of the divisions. I don\'t know how you did this.');
     }
-    const destinationTable = document.getElementById('playerTable' + destinationTableId);
 
+    const destinationTable = document.getElementById('playerTable' + destinationTableId);
     destinationTable.appendChild(row);
+
+    const bottomTable = document.getElementById('playerTable' + (divisionsCount - 1));
+    if (bottomTable.childElementCount < 2) {
+        //Bottom table is now empty, so remove it.
+        bottomTable.remove();
+        divisionsCount--;
+    }
 }
 
 function getTableId(tableElement) {

@@ -3,16 +3,9 @@ const playerUrl = API_CONFIG.API_BASE_URL + '/user/player';
 const playersDivisionsUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
 const logoutUrl = API_CONFIG.API_BASE_URL + '/logout';
 const matchUrl = API_CONFIG.API_BASE_URL + '/match';
-var isAdmin = false;
+let isAdmin = false;
 
 let userPlayerId = -1;
-
-class Division {
-    constructor(divisionNum) {
-        this.divisionNum = divisionNum;
-        this.players = [];
-    }
-}
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
@@ -93,7 +86,6 @@ async function loadTables() {
     })
     const divisions = await response.json();
 
-    // const divisions = groupPlayersByDivision(players);
     renderDivisionTables(divisions);
 }
 
@@ -114,7 +106,7 @@ function createDivisionSection(division) {
     divisionTitle.textContent = getDivisionTitle(division.divisionRank);
 
     const divisionTable = document.createElement('table');
-    divisionTable.id = 'playerTable' + division.divisionNum;
+    divisionTable.id = 'playerTable' + division.divisionRank;
     divisionTable.appendChild(createDivisionTable(division));
 
     divisionSection.appendChild(divisionTitle);
@@ -124,7 +116,7 @@ function createDivisionSection(division) {
 
 function createDivisionTable(division) {
     const divisionTable = document.createElement('table');
-    divisionTable.id = 'playerTable' + division.divisionNum;
+    divisionTable.id = 'playerTable' + division.divisionRank;
     divisionTable.appendChild(createDivisionTableTopRow(division.players.length));
 
     division.players.forEach((player, rowIndex) => {

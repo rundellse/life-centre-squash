@@ -59,6 +59,10 @@ tr, th, td {
     text-align: center;
 }
 
+.admin-division-table {
+    margin-bottom: 20px;
+}
+
 .phone-number-div {
     height: 50%;
     display: grid;
