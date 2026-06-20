@@ -1,35 +1,35 @@
-const usersUrl = 'http://localhost:8080/api/user';
+const usersUrl = API_CONFIG.API_BASE_URL + '/user';
 var userId;
 
-document.addEventListener('DOMContentLoaded', function() {
-    populateUserDetailsFields();
-    configureUpdatePlayerButton();
+document.addEventListener('DOMContentLoaded', async function() {
+    await populateUserDetailsFields();
+    await configureUpdatePlayerButton();
 });
 
-function populateUserDetailsFields() {
+
+async function populateUserDetailsFields() {
     const nameField = document.getElementById('name-field');
     const emailField = document.getElementById('email-field');
     const phoneField = document.getElementById('phone-field');
     const availabilityField = document.getElementById('availability-field');
     const anonymiseCheck = document.getElementById('anonymise-check');
 
-    fetch(usersUrl, {
+    const response = await fetch(usersUrl, {
         method: 'GET',
         credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(user => {
-        userId = user.id;
-        nameField.value = user.name;
-        emailField.value = user.email;
-        phoneField.value = user.phoneNumber;
-        availabilityField.value = user.availabilityNotes;
-        anonymiseCheck.checked = user.anonymise;
-    })
-    .catch(error => console.error('Error loading User details: ', error));
+    });
+    
+    const user = await response.json();
+    
+    userId = user.id;
+    nameField.value = user.name;
+    emailField.value = user.email;
+    phoneField.value = user.phoneNumber;
+    availabilityField.value = user.availabilityNotes;
+    anonymiseCheck.checked = user.anonymise;
 }
 
-function configureUpdatePlayerButton() {
+async function configureUpdatePlayerButton() {
     const updatePlayerButton = document.getElementById("update-player-button");
     updatePlayerButton.onclick = updateUser;
 }

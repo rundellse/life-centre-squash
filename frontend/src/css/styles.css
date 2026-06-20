@@ -1,3 +1,6 @@
+html {
+    padding-bottom: 60px;
+}
 
 /* Table Start */
 #table-block {
@@ -50,25 +53,8 @@ tr, th, td {
     font-weight: bold;
 }
 
-.admin-details-cell, 
-.admin-name-cell {
-    width: 280px;
-    min-width: fit-content;
-
-    font-weight: bold;
-    text-align: center;
-}
-
-.admin-division-table {
-    margin-bottom: 20px;
-}
-
-.phone-number-div {
-    height: 50%;
-    display: grid;
-}
-
-.email-div {
+.phone-email-div {
+    border: none;
     height: 50%;
     display: grid;
     text-transform: lowercase;
@@ -124,6 +110,11 @@ h2 {
     text-align: center;
     margin: 32px 0 16px 0;
     font-size: 1.6rem;
+    color: #2c3e50;
+}
+
+h3 {
+    margin: 30px 20px 20px 20px;
     color: #2c3e50;
 }
 
@@ -205,11 +196,23 @@ nav .nav-right button:hover {
     margin: 50px;
 }
 
+#updated-text {
+    font-weight: bold;
+    color: darkred;
+}
+
 #login-form {
     display: grid;
     margin-left: 100px;
     width: 10%;
     font-weight: bold;
+}
+
+#login-form label {
+    margin-top: 20px;
+}
+#login-form input {
+    margin-top: 10px;
 }
 
 label {

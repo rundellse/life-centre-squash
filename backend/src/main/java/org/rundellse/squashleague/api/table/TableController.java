@@ -4,7 +4,7 @@ import org.rundellse.squashleague.api.table.dto.BulkPlayerUpdateDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.service.PdfService;
-import org.rundellse.squashleague.service.TableService;
+import org.rundellse.squashleague.service.SeasonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class TableController {
     private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
 
     @Autowired
-    private TableService tableService;
+    private SeasonService seasonService;
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -36,7 +36,7 @@ public class TableController {
 
     @PostMapping("/table/new-season")
     public Map<Integer, List<Player>> newSeason(@RequestBody LocalDate newSeasonEndDate) {
-        return tableService.endSeasonNewSeason(newSeasonEndDate);
+        return seasonService.endSeasonNewSeason(newSeasonEndDate);
     }
 
     @PostMapping("/table/update-table")

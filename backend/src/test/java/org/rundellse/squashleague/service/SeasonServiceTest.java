@@ -20,14 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
-class TableServiceTest {
+class SeasonServiceTest {
 
     public static final String GENERIC_EMAIL = "email@email.com";
     public static final String GENERIC_PHONE_NUMBER = "0777777777";
     public static final String GENERIC_AVAILABILITY_NOTES = "Availability Notes";
     private final Season PREVIOUS_SEASON = new Season(2L, LocalDate.now().minusDays(14), LocalDate.now());
 
-    private TableService tableService;
+    private SeasonService seasonService;
 
     private SeasonRepository seasonRepository;
 
@@ -35,11 +35,11 @@ class TableServiceTest {
 
     @BeforeEach
     public void beforeEach() {
-        tableService = new TableService();
+        seasonService = new SeasonService();
         seasonRepository = mock(SeasonRepository.class);
         playerRepository = mock(PlayerRepository.class);
-        tableService.setSeasonH2DAO(seasonRepository);
-        tableService.setPlayerH2DAO(playerRepository);
+        seasonService.setSeasonH2DAO(seasonRepository);
+        seasonService.setPlayerH2DAO(playerRepository);
     }
 
 
@@ -51,7 +51,7 @@ class TableServiceTest {
         when(playerRepository.findAll()).thenReturn(endSeasonPlayerList);
         when(seasonRepository.save(any(Season.class))).thenReturn(new Season(3L, LocalDate.now(), LocalDate.now().plusDays(7)));
 
-        Map<Integer, List<Player>> result = tableService.endSeasonNewSeason(LocalDate.now().plusDays(28));
+        Map<Integer, List<Player>> result = seasonService.endSeasonNewSeason(LocalDate.now().plusDays(28));
 
         ArgumentCaptor<Player> playerArgumentCaptor = ArgumentCaptor.forClass(Player.class);
         verify(playerRepository, times(22)).save(playerArgumentCaptor.capture());
@@ -97,9 +97,9 @@ class TableServiceTest {
         testPlayerList.add(new Player(6L, "Player 6", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1));
         testPlayerList.add(new Player(7L, "Player 7", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1));
 
-        tableService.movePlayerInList(testPlayerList, demotePlayer1, 2);
-        tableService.movePlayerInList(testPlayerList, demotePlayer2, 2);
-        tableService.movePlayerInList(testPlayerList, promotePlayer1, -2);
+        seasonService.movePlayerInList(testPlayerList, demotePlayer1, 2);
+        seasonService.movePlayerInList(testPlayerList, demotePlayer2, 2);
+        seasonService.movePlayerInList(testPlayerList, promotePlayer1, -2);
 
         assertEquals(testPlayerList.get(0).getId(), firstPlayer.getId(), "First player should be unmoved. Actual index: " + testPlayerList.indexOf(firstPlayer));
         assertEquals(testPlayerList.get(2).getId(), promotePlayer1.getId(), "Promoted player should be moved to third-place, above demoted player(s). Actual index: " + testPlayerList.indexOf(promotePlayer1));
@@ -118,7 +118,7 @@ class TableServiceTest {
         testPlayerList.add(new Player(6L, "Player 6", GENERIC_EMAIL, GENERIC_PHONE_NUMBER, GENERIC_AVAILABILITY_NOTES, 1));
 
         List<Player> testPlayerListCopy = new ArrayList<>(testPlayerList);
-        tableService.movePlayerInList(testPlayerList, firstPlayer, 0);
+        seasonService.movePlayerInList(testPlayerList, firstPlayer, 0);
 
         assertEquals(testPlayerListCopy, testPlayerList);
     }

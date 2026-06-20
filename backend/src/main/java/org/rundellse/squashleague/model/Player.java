@@ -1,6 +1,7 @@
 package org.rundellse.squashleague.model;
 
 import jakarta.persistence.*;
+import org.rundellse.squashleague.model.user.User;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,10 +33,15 @@ public class Player {
 
     private boolean isAnonymised;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private User user;
+
     @OneToMany
     private List<SquashMatch> homeMatches;
+
     @OneToMany
     private List<SquashMatch> awayMatches;
+
 
     public static Comparator<Player> PLAYER_POINTS_COMPARATOR = (p1, p2) -> {
         Integer p1Total = 0;
@@ -51,6 +57,7 @@ public class Player {
         // If p1 is higher it should be placed first. Negative return places p1 first. So if p1 is larger negative should be returned, hence p2-p1.
         return p2Total - p1Total;
     };
+
 
     public Player() {
     }
@@ -72,6 +79,15 @@ public class Player {
         this.phoneNumber = phoneNumber;
         this.availabilityNotes = availabilityNotes;
         this.division = division;
+    }
+
+    public Player(String name, String email, String phoneNumber, String availabilityNotes, Integer division, boolean isAnonymised) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.availabilityNotes = availabilityNotes;
+        this.division = division;
+        this.isAnonymised = isAnonymised;
     }
 
 
@@ -120,6 +136,10 @@ public class Player {
     }
 
     public void setDivision(Integer division) {
+        if (division < 0) {
+            division = 0;
+        }
+
         this.division = division;
     }
 
@@ -137,6 +157,14 @@ public class Player {
 
     public void setAnonymised(boolean anonymised) {
         isAnonymised = anonymised;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<SquashMatch> getHomeMatches() {
@@ -165,10 +193,6 @@ public class Player {
     public String toString() {
         return "Player{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", availabilityNotes='" + availabilityNotes + '\'' +
                 ", division=" + division +
                 '}';
     }

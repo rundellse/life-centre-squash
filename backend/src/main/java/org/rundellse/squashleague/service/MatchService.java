@@ -19,14 +19,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-
 @Service
 @Transactional
 public class MatchService {
     private static final Logger LOG = LoggerFactory.getLogger(MatchService.class);
 
     private final UserService userService;
+
+    private final SeasonService seasonService;
 
     private final SquashMatchRepository squashMatchRepository;
 
@@ -35,8 +35,9 @@ public class MatchService {
     private final PlayerRepository playerRepository;
 
     @Autowired
-    public MatchService(UserService userService, SquashMatchRepository squashMatchRepository, SeasonRepository seasonRepository, PlayerRepository playerRepository) {
+    public MatchService(UserService userService, SeasonService seasonService, SquashMatchRepository squashMatchRepository, SeasonRepository seasonRepository, PlayerRepository playerRepository) {
         this.userService = userService;
+        this.seasonService = seasonService;
         this.squashMatchRepository = squashMatchRepository;
         this.seasonRepository = seasonRepository;
         this.playerRepository = playerRepository;
@@ -56,7 +57,7 @@ public class MatchService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        Season season = getCurrentSeason();
+        Season season = seasonService.getCurrentSeason();
 
         Player rowPlayer = playerRepository.findById(rowPlayerId).orElseThrow();
         Player columnPlayer = playerRepository.findById(columnPlayerId).orElseThrow();
@@ -105,14 +106,4 @@ public class MatchService {
 //
 //        return pointsGrid;
 //    }
-
-    public Season getCurrentSeason() {
-        Season season = seasonRepository.findSeasonForDate(LocalDate.now());
-        if (season == null) {
-            LOG.error("No Season found for current date.");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return season;
-    }
 }

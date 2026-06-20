@@ -1,4 +1,5 @@
-const playersUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
+const divisionsUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
+const playersUrl = API_CONFIG.API_BASE_URL + '/players';
 const newSeasonUrl = API_CONFIG.API_BASE_URL + '/table/new-season';
 const updateTableUrl = API_CONFIG.API_BASE_URL + '/table/update-table';
 const generatePdfUrl = API_CONFIG.API_BASE_URL + '/table/generate-pdf';
@@ -21,8 +22,8 @@ class DivisionUpdate {
 let divisionsCount = 0;
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    populateAdminTable();
+document.addEventListener('DOMContentLoaded', async function() {
+    await populateAdminTable();
     configureSeasonButtons();
 });
 
@@ -31,7 +32,7 @@ async function populateAdminTable() {
     const divisions = [];
 
     try {
-        const response = await fetch(playersUrl, {
+        const response = await fetch(divisionsUrl, {
             method: 'GET',
             credentials: 'include'
         });
@@ -58,8 +59,8 @@ function createNewDivisionTable(divisionRank) {
     divisionTable.setAttribute('id', 'playerTable' + divisionRank);
     divisionTable.innerHTML = `<thead class="table-top-row"><tr><th colspan="6">Division ` + divisionRank + `</th></tr></thead>`;
 
-    const tableBlock = document.querySelector('#table-block');
-    tableBlock.appendChild(divisionTable);
+    const tableBlock = document.getElementById('admin-table-block');
+    tableBlock.insertBefore(divisionTable, document.getElementById('save-divisions-button-bottom'));
     divisionsCount++;
     return divisionTable;
 }
@@ -71,7 +72,6 @@ function configureSeasonButtons() {
     document.getElementById('new-season-button').onclick = newSeason;
     document.getElementById('generate-pdf-button').onclick = generatePdf;
 }
-
 
 
 function addPlayerRowToDivisionTable(index, player, divisionTable) {
@@ -148,8 +148,8 @@ function changeTable(divisionIndexChange) {
         console.log('Cannot promote player above top table. Cancelling.');
         return;
     } else if (destinationTableId == divisionsCount) {
-            const newTable = createNewDivisionTable(destinationTableId);
-    } else {
+        const newTable = createNewDivisionTable(destinationTableId);
+    } else if (destinationTableId > divisionsCount) { 
         console.log('Cannot relegate more than one table below the bottom of the divisions. I don\'t know how you did this.');
     }
 
@@ -194,6 +194,7 @@ function updateDivisions() {
     })
     .then(() => {
         console.log('Tables updated');
+        alert('Season tables updated successfully');
     })
     .catch(error => {
         console.error('Error saving division updates:', error);
@@ -222,7 +223,7 @@ function newSeason() {
         body: JSON.stringify(newSeasonEndDate)
     })
     .then(() => {
-        console.log('New Season created!');
+        window.alert('New Season created!');
     })
     .catch(error => console.error('Error creating new season:', error));
 }

@@ -2,11 +2,15 @@ package org.rundellse.squashleague.api.player;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.rundellse.squashleague.api.player.dto.DivisionDTO;
+import org.rundellse.squashleague.api.player.dto.NewPlayerDetailsDTO;
 import org.rundellse.squashleague.api.player.dto.PlayerDetailsDTO;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
+import org.rundellse.squashleague.model.user.User;
 import org.rundellse.squashleague.persistence.PlayerRepository;
+import org.rundellse.squashleague.persistence.UserRepository;
 import org.rundellse.squashleague.service.PlayerService;
+import org.rundellse.squashleague.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +28,40 @@ public class PlayerController {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerController.class.getName());
 
-    @Autowired
-    private PlayerRepository playerRepository;
+
+    private final PlayerRepository playerRepository;
+
+    private final PlayerService playerService;
+
+    private final UserRepository userRepository;
+
+    private final UserService userService;
+
 
     @Autowired
-    private PlayerService playerService;
+    public PlayerController(PlayerRepository playerRepository, PlayerService playerService, UserRepository userRepository, UserService userService) {
+        this.playerRepository = playerRepository;
+        this.userRepository = userRepository;
+        this.playerService = playerService;
+        this.userService = userService;
+    }
+
 
     @PostMapping("/players")
     @ResponseStatus(HttpStatus.CREATED)
-    public void newPlayer(@RequestBody Player player) {
-        LOG.debug("Attempting to persist new Player");
-        playerRepository.save(player);
-        LOG.info("Persisted new Player, ID: {}", player.getId());
+    public void newPlayer(@RequestBody NewPlayerDetailsDTO newPlayerDetailsDTO) {
+        PlayerService.validateNewPlayerDetails(newPlayerDetailsDTO);
+
+        LOG.trace("Creating Player and User object for persistence");
+        Player newPlayer = PlayerService.createPlayerFromNewPlayerDetailsDTO(newPlayerDetailsDTO);
+        User newUser = userService.createUserFromNewPlayerDetailsDTO(newPlayerDetailsDTO, newPlayer);
+
+        LOG.debug("Attempting to persist new Player and User");
+        playerRepository.save(newPlayer);
+        userRepository.save(newUser);
+        newPlayer.setUser(newUser);
+        userRepository.save(newUser);
+        LOG.info("Persisted new Player, ID: {}. Persisted new User, ID: {}", newPlayer.getId(), newUser.getId());
     }
 
     @PostMapping("/players/{id}")
@@ -50,26 +76,34 @@ public class PlayerController {
         }
 
         Player updatedPlayer = playerOptional.get();
-        updatePlayerFromPlayerDetailsDTO(updatedPlayer, playerDetailsDTO);
+        PlayerService.updatePlayerFromPlayerDetailsDTO(updatedPlayer, playerDetailsDTO);
         playerRepository.save(updatedPlayer);
-        return updatedPlayer;
-    }
 
-    private void updatePlayerFromPlayerDetailsDTO(Player updatedPlayer, PlayerDetailsDTO playerDetailsDTO) {
-        updatedPlayer.setName(playerDetailsDTO.name());
-        updatedPlayer.setEmail(playerDetailsDTO.email());
-        updatedPlayer.setPhoneNumber(playerDetailsDTO.phoneNumber());
-        updatedPlayer.setAvailabilityNotes(playerDetailsDTO.availabilityNotes());
-        updatedPlayer.setDivision(playerDetailsDTO.division());
-        updatedPlayer.setAnonymised(playerDetailsDTO.anonymise());
-        updatedPlayer.setRedFlagged(playerDetailsDTO.redFlagged());
+        User updatedUser = updatedPlayer.getUser();
+        userService.updateUserFromPlayerDetailsDTO(updatedUser, playerDetailsDTO);
+
+        return updatedPlayer;
     }
 
     @DeleteMapping("/players/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deletePlayer(@PathVariable long id) {
-        LOG.info("Deleting Player with ID: {}", id);
-        playerRepository.deleteById(id);
+        LOG.info("Deleting Player and User for playerId: {}", id);
+
+        Optional<Player> playerOptional = playerRepository.findById(id);
+        if (playerOptional.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot find Player for ID: " + id);
+        }
+
+        Player player = playerOptional.get();
+        User user = player.getUser();
+
+        user.setPlayer(null);
+        player.setUser(null);
+
+        userRepository.delete(user);
+        playerRepository.delete(player);
+        LOG.debug("Player and User deleted for playerId: {}", id);
     }
 
     @GetMapping("/players")
@@ -101,7 +135,8 @@ public class PlayerController {
                 player.getAvailabilityNotes(),
                 player.getDivision(),
                 player.isAnonymised(),
-                player.isRedFlagged()
+                player.isRedFlagged(),
+                userService.isUserAdmin(player)
         );
     }
 

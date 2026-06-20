@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class TableService {
+public class SeasonService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TableService.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(SeasonService.class.getName());
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -163,6 +163,18 @@ public class TableService {
     private Season createNewSeason(LocalDate newSeasonEndDate) {
         Season newSeason = new Season(LocalDate.now(), newSeasonEndDate);
         return seasonRepository.save(newSeason);
+    }
+
+
+    public Season getCurrentSeason() {
+        Season season = seasonRepository.findSeasonForDate(LocalDate.now());
+
+        if (season == null) {
+            LOG.error("No Season found for current date. Fetching latest as a backup.");
+            season = seasonRepository.findFirstByOrderByEndDateDesc();
+        }
+
+        return season;
     }
 
 

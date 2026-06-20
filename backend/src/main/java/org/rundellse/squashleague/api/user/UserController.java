@@ -1,6 +1,7 @@
 package org.rundellse.squashleague.api.user;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.rundellse.squashleague.api.user.dto.PasswordUpdateAdminDTO;
 import org.rundellse.squashleague.api.user.dto.PasswordUpdateDTO;
 import org.rundellse.squashleague.api.user.dto.UserDetailsDTO;
 import org.rundellse.squashleague.model.user.User;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Objects;
+
+import static org.rundellse.squashleague.service.UserService.validateNewPassword;
 
 // TODO User deactivation and deletion, timed deletion on red-flag removal.
 @RestController
@@ -56,22 +59,24 @@ public class UserController {
         userService.saveUserDetails(request, userDetailsDTO.id(), userDetailsDTO);
     }
 
+    @PostMapping("/admin/password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updatePasswordAdmin(@RequestBody PasswordUpdateAdminDTO passwordUpdateAdminDTO) {
+        LOG.trace("Attempting to update Password for User. Player ID: {}", passwordUpdateAdminDTO.playerId());
+        userService.updatePasswordAdmin(passwordUpdateAdminDTO);
+    }
+
     @PostMapping("/user/password")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void updatePassword(HttpServletRequest request, @RequestBody PasswordUpdateDTO passwordUpdateDTO) {
-        User user = userService.getSessionUser(request);
-        if (!userService.doesPasswordMatchUserPassword(passwordUpdateDTO.currentPassword(), user)) {
-            LOG.debug("Incorrect current password for attempted password update. User ID: {}", user.getId());
+        User userToUpdate = userService.getSessionUser(request);
+
+        if (!userService.doesPasswordMatchUserPassword(passwordUpdateDTO.currentPassword(), userToUpdate)) {
+            LOG.debug("Incorrect current password for attempted password update. User ID: {}", userToUpdate.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        String newPassword = passwordUpdateDTO.newPassword();
-        if (!userService.validateNewPassword(newPassword)) {
-            LOG.debug("New password violates password policy for attempted password update. User ID: {}", user.getId());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        userService.saveNewPasswordForUser(newPassword, user);
+        validateNewPassword(passwordUpdateDTO.newPassword());
+        userService.saveNewPasswordForUser(passwordUpdateDTO.newPassword(), userToUpdate);
     }
-
 }

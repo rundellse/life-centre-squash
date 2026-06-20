@@ -1,7 +1,5 @@
-const userRolesUrl = API_CONFIG.API_BASE_URL + '/user/roles';
 const playerUrl = API_CONFIG.API_BASE_URL + '/user/player';
 const playersDivisionsUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
-const logoutUrl = API_CONFIG.API_BASE_URL + '/logout';
 const matchUrl = API_CONFIG.API_BASE_URL + '/match';
 let isAdmin = false;
 
@@ -9,41 +7,13 @@ let userPlayerId = -1;
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        await checkUserSessionForPermissions();
         await getPlayerForUser();
-        configureLogoutButton();
         await loadTables();
 
     } catch (error) {
         console.error('Page initialization failed:', error);
     }
 });
-
-// Checks like this are why this page should be served from the server or be an SPA.
-async function checkUserSessionForPermissions() {
-    const response = await fetch(userRolesUrl, {
-        method: 'GET',
-        credentials: 'include'
-    });
-
-    if (response.status === 403) {
-        window.location = 'login.html';
-        return;
-    }
-
-    if (!response.ok) {
-        throw new Error(`Failed to fetch roles: ${response.status}`);
-    }
-
-    const roles = await response.json();
-    roles.forEach(role => {
-        if (role === 'ROLE_ADMIN') {
-            document.getElementById('admin-link').removeAttribute('hidden');
-            document.getElementById('table-admin-link').removeAttribute('hidden');
-            isAdmin = true;
-        }
-    });
-}
 
 async function getPlayerForUser() {
     const response = await fetch(playerUrl, {
@@ -56,27 +26,6 @@ async function getPlayerForUser() {
     }
     
     userPlayerId = await response.json();
-}
-
-function configureLogoutButton() {
-    const logoutButton = document.getElementById('logout-button');
-    logoutButton.onclick = logout;
-}
-
-function logout() {
-    fetch(logoutUrl, {
-        method: 'POST',
-        credentials: 'include',
-    })
-    .then(response => {
-        if (response.status == 200) {
-            console.log('Logout completed successfully.');
-            window.location = 'login.html';
-        } else {
-            throw new Error('Logout not completed. Non-OK response code returned: ' + response.status);
-        }
-    })
-    .catch(error => console.error('Error while logging out: ', error));
 }
 
 async function loadTables() {
@@ -171,8 +120,8 @@ function createDivisionTablePlayerRow(division, rowIndex, player) {
     
     const detailsCell = document.createElement('td');
     detailsCell.className = 'details-cell';
-    detailsCell.appendChild(createTextCell(player.phoneNumber, 'phone-number-div'));
-    detailsCell.appendChild(createTextCell(player.email, 'email-div'));
+    detailsCell.appendChild(createTextCell(player.phoneNumber, 'phone-email-div'));
+    detailsCell.appendChild(createTextCell(player.email, 'phone-email-div'));
     row.appendChild(detailsCell);
 
     const userPlayerIndex = findPlayerIndexIfInDivision(division, userPlayerId);
@@ -242,8 +191,6 @@ function updateMatchPoints(event) {
             columnPlayerId: event.target.dataset.columnPlayerId,
             points: event.target.value
         });
-
-    console.log(requestBody);
 
     fetch(matchUrl, {
         method: 'POST',

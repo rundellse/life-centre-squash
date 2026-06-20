@@ -2,6 +2,8 @@ package org.rundellse.squashleague.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.rundellse.squashleague.api.player.dto.DivisionDTO;
+import org.rundellse.squashleague.api.player.dto.NewPlayerDetailsDTO;
+import org.rundellse.squashleague.api.player.dto.PlayerDetailsDTO;
 import org.rundellse.squashleague.api.player.dto.TablePlayerDTO;
 import org.rundellse.squashleague.model.Player;
 import org.rundellse.squashleague.model.Season;
@@ -20,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
+import static org.rundellse.squashleague.service.UserService.validateNewPassword;
 import static org.springframework.util.ObjectUtils.nullSafeEquals;
 
 @Service
@@ -35,24 +38,20 @@ public class PlayerService {
 
     private final SquashMatchRepository squashMatchRepository;
 
-    private final MatchService matchService;
+    private final SeasonService seasonService;
 
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository, UserRepository userRepository, SquashMatchRepository squashMatchRepository, MatchService matchService) {
+    public PlayerService(PlayerRepository playerRepository, UserRepository userRepository, SquashMatchRepository squashMatchRepository, SeasonService seasonService) {
         this.playerRepository = playerRepository;
         this.userRepository = userRepository;
         this.squashMatchRepository = squashMatchRepository;
-        this.matchService = matchService;
+        this.seasonService = seasonService;
     }
 
-
-    public Iterable<TablePlayerDTO> retrieveAllPlayers(HttpServletRequest httpServletRequest) {
-        return getAllPlayers(httpServletRequest);
-    }
 
     public Iterable<DivisionDTO> retrieveAllPlayersInDivisions(HttpServletRequest httpServletRequest) {
-        List<TablePlayerDTO> allPlayersDTOs =  getAllPlayers(httpServletRequest);
+        List<TablePlayerDTO> allPlayersDTOs = retrieveAllPlayers(httpServletRequest);
         Map<Integer, DivisionDTO> divisions = new HashMap<>();
 
         for (TablePlayerDTO playerDTO : allPlayersDTOs) {
@@ -65,7 +64,7 @@ public class PlayerService {
                 .toList();
     }
 
-    private List<TablePlayerDTO> getAllPlayers(HttpServletRequest httpServletRequest) {
+    public List<TablePlayerDTO> retrieveAllPlayers(HttpServletRequest httpServletRequest) {
         String userEmail = httpServletRequest.getRemoteUser();
         User user = userRepository.findUserByEmail(userEmail);
         LOG.debug("Retrieving all players for User: {}", user.getId());
@@ -82,7 +81,7 @@ public class PlayerService {
 
     private List<String> getDivisionMatchPointsForPlayer(Player player, List<Player> players) {
         List<String> matchPoints = new ArrayList<>();
-        Season currentSeason = matchService.getCurrentSeason();
+        Season currentSeason = seasonService.getCurrentSeason();
 
         for (Player opponent : players) {
             if (nullSafeEquals(player.getId(), opponent.getId())) {
@@ -164,6 +163,35 @@ public class PlayerService {
                 player.getDivision(),
                 false,
                 divisionPoints
+        );
+    }
+
+    public static void validateNewPlayerDetails(NewPlayerDetailsDTO newPlayerDetailsDTO) {
+        if (newPlayerDetailsDTO.name() == null || newPlayerDetailsDTO.name().isBlank()) {
+            throw new IllegalArgumentException("Name is a required field");
+        }
+
+        validateNewPassword(newPlayerDetailsDTO.password());
+    }
+
+    public static void updatePlayerFromPlayerDetailsDTO(Player updatedPlayer, PlayerDetailsDTO playerDetailsDTO) {
+        updatedPlayer.setName(playerDetailsDTO.name());
+        updatedPlayer.setEmail(playerDetailsDTO.email());
+        updatedPlayer.setPhoneNumber(playerDetailsDTO.phoneNumber());
+        updatedPlayer.setAvailabilityNotes(playerDetailsDTO.availabilityNotes());
+        updatedPlayer.setDivision(playerDetailsDTO.division());
+        updatedPlayer.setAnonymised(playerDetailsDTO.anonymise());
+        updatedPlayer.setRedFlagged(playerDetailsDTO.redFlagged());
+    }
+
+    public static Player createPlayerFromNewPlayerDetailsDTO(NewPlayerDetailsDTO newPlayerDetailsDTO) {
+        return new Player(
+                newPlayerDetailsDTO.name(),
+                newPlayerDetailsDTO.email(),
+                newPlayerDetailsDTO.phoneNumber(),
+                newPlayerDetailsDTO.availabilityNotes(),
+                newPlayerDetailsDTO.division(),
+                newPlayerDetailsDTO.anonymise()
         );
     }
 }

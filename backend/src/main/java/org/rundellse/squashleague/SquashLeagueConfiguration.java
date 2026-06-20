@@ -2,19 +2,13 @@ package org.rundellse.squashleague;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.rundellse.squashleague.api.login.custom.CustomUserDetailsService;
-import org.rundellse.squashleague.api.player.PlayerController;
-import org.rundellse.squashleague.model.Player;
-import org.rundellse.squashleague.model.Season;
 import org.rundellse.squashleague.model.user.Role;
-import org.rundellse.squashleague.model.user.User;
-import org.rundellse.squashleague.model.user.UserRole;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.persistence.RoleRepository;
 import org.rundellse.squashleague.persistence.SeasonRepository;
 import org.rundellse.squashleague.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.webmvc.autoconfigure.DispatcherServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,15 +31,13 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.time.LocalDate;
-
 @Configuration
 @EnableWebSecurity
 @EnableJpaRepositories
 public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
-    @Value("${squash.league.run.init}")
-    private boolean runInit;
+    @Value("${squash.league.host.address:http://localhost:8081/}")
+    private String hostAddress;
 
     @Bean
     public DispatcherServlet dispatcherServlet() {
@@ -56,11 +48,6 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     public DispatcherServletRegistrationBean dispatcherServletRegistration() {
         // Prepend all api paths with '/api'. Done simply for clarity.
         return new DispatcherServletRegistrationBean(dispatcherServlet(), "/api");
-    }
-
-    @Bean
-    public PlayerController playerController() {
-        return new PlayerController();
     }
 
     @Bean
@@ -91,7 +78,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:8081/")
+                        .allowedOrigins(hostAddress, "www." + hostAddress)
                         .allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name())
                         .allowedHeaders("*")
                         .allowCredentials(true)
@@ -101,7 +88,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         //TODO Implement csrf, disabled for now.
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
@@ -113,13 +100,15 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/login").permitAll()
                                 .requestMatchers("/error").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/players/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
+                                .requestMatchers(HttpMethod.GET, "/players/**").hasAnyAuthority(Role.ROLE_ADMIN.toString(), Role.ROLE_USER.toString())
                                 .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Role.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.GET, "/table/**").hasAuthority(Role.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.POST, "/table/**").hasAuthority(Role.ROLE_ADMIN.toString())
-                                .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
-                                .requestMatchers(HttpMethod.POST, "/user/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
-                                .requestMatchers(HttpMethod.POST, "/match/**").hasAnyAuthority(Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString())
+                                .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority(Role.ROLE_ADMIN.toString(), Role.ROLE_USER.toString())
+                                .requestMatchers(HttpMethod.POST, "/user/**").hasAnyAuthority(Role.ROLE_ADMIN.toString(), Role.ROLE_USER.toString())
+                                .requestMatchers(HttpMethod.POST, "/match/**").hasAnyAuthority(Role.ROLE_ADMIN.toString(), Role.ROLE_USER.toString())
+                                .requestMatchers(HttpMethod.POST, "/admin/**").hasAuthority(Role.ROLE_ADMIN.toString())
+                                .requestMatchers(HttpMethod.DELETE).hasAuthority(Role.ROLE_ADMIN.toString())
                 )
                 .logout(logoutConfigurer ->
                         logoutConfigurer
@@ -131,7 +120,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                     // CORS mappings are added for Controller Endpoints only by addCorsMappings above. Needs
                                     // to be added manually for the logout response. According to Spring this is still preferred,
                                     // rather than creating a custom logout, to ensure logout is done fully and properly. I'll take their word for it.
-                                    response.setHeader("Access-Control-Allow-Origin", "http://localhost:8081");
+                                    response.setHeader("Access-Control-Allow-Origin", hostAddress);
                                     response.setHeader("Access-Control-Allow-Credentials", "true");
                                     response.getWriter().write("{\"message\": \"Logged out\"}");
                                 })
@@ -152,63 +141,4 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
 
     @Autowired
     private SeasonRepository seasonRepository;
-
-    @Bean
-    public CommandLineRunner init() {
-        if (!runInit) {
-            // Do nothing
-            return args -> {};
-        }
-
-        System.out.println("Running data init");
-        userRepository.deleteAll();
-        seasonRepository.deleteAll();
-        roleRepository.deleteAll();
-
-        return args -> {
-            Season newSeason = new Season(LocalDate.now(), LocalDate.now().plusDays(7));
-            seasonRepository.save(newSeason);
-            UserRole userRole = roleRepository.save(new UserRole(Role.ROLE_USER));
-            UserRole adminRole = roleRepository.save(new UserRole(Role.ROLE_ADMIN));
-
-            for (int i = 1; i < 23; i++) {
-                Player player = playerRepository.save(new Player(
-                        "Player " + i,
-                        "email" + i + "@email.com",
-                        "07777777" + i,
-                        "Availability" + i,
-                        i % 4,
-                        false,
-                        false
-                ));
-
-                User user = new User();
-                user.setName("user" + i);
-                user.setEmail("user" + i + "@email.com");
-                user.setPassword(passwordEncoder().encode("password"));
-                user.getUserRoles().add(userRole);
-                user.setPlayer(player);
-                userRepository.save(user);
-
-            }
-
-            Player adminPlayer = playerRepository.save(new Player(
-                    "Admin Guy ",
-                    "admin@email.com",
-                    "017777777",
-                    "Availability",
-                    0,
-                    false,
-                    false
-            ));
-
-            User admin = new User();
-            admin.setName("admin");
-            admin.setEmail("admin@email.com");
-            admin.setPassword(passwordEncoder().encode("password"));
-            admin.setPlayer(adminPlayer);
-            admin.getUserRoles().add(adminRole);
-            userRepository.save(admin);
-        };
-    }
 }

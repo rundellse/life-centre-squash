@@ -34,6 +34,15 @@ public class User {
     public User() {
     }
 
+    public User(String name, String email, String password, Set<UserRole> userRoles, Player player) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.userRoles = userRoles;
+        this.player = player;
+    }
+
+
     public Long getId() {
         return id;
     }
@@ -80,6 +89,15 @@ public class User {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", userRoles=" + userRoles +
+                '}';
     }
 
     @Override

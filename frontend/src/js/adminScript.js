@@ -1,55 +1,38 @@
 
 const playersUrl = API_CONFIG.API_BASE_URL + '/players';
-const userRoleUrl = API_CONFIG.API_BASE_URL + '/user/roles';
+
+const selectTopLineOption = '<option disabled selected value> -- Select a Player -- </option>';
 
 
 document.addEventListener('DOMContentLoaded', async function() {
-    await checkUserSessionForPermissions();
-    configurePlayerAdd();
-    configurePlayerDelete();
-    configurePlayerUpdate();
+    await configurePlayerAdd();
+    await configurePlayerDelete();
+    await configurePlayerUpdate();
 });
 
 
-// Checks like this are why this page should be served from the server or be an SPA.
-async function checkUserSessionForPermissions() {
-    fetch(userRoleUrl, {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(response => {
-        if (response.status == 403) {
-            window.location = 'login.html';
-        }
-        return response;
-    })
-    .then(response => response.json())
-    .then(roles => {
-        roles.forEach(role => {
-            if (role == 'ROLE_ADMIN') {
-                document.getElementById('admin-link').removeAttribute('hidden');
-                document.getElementById('table-admin-link').removeAttribute('hidden');
-            }
-        })
-    })
-    .catch(error => console.error('Error while checking user roles: ', error));
-
-    return Promise.resolve();
-}
-
-
-function configurePlayerAdd() {
+async function configurePlayerAdd() {
     const submitButton = document.getElementById('new-player-button');
     submitButton.onclick = addPlayer;
 }
 
 function addPlayer() {
-    const newName = document.getElementById('name-field').value;
-    const newEmail = document.getElementById('email-field').value;
-    const newPhone = document.getElementById('phone-field').value;
-    const newDivision = document.getElementById('division-field').value;
-    const newAvailability = document.getElementById('availability-field').value;
-    const newAnonymise = document.getElementById('anonymise-field').value;
+    const nameField = document.getElementById('name-field');
+    const newName = nameField.value;
+    const emailField = document.getElementById('email-field');
+    const newEmail = emailField.value;
+    const phoneField = document.getElementById('phone-field');
+    const newPhone = phoneField.value;
+    const divisionField = document.getElementById('division-field');
+    const newDivision = divisionField.value;
+    const availabilityField = document.getElementById('availability-field');
+    const newAvailability = availabilityField.value;
+    const anonymiseField = document.getElementById('anonymise-field');
+    const newAnonymise = anonymiseField.checked;
+    const adminField = document.getElementById('admin-field');
+    const newAdminUser = adminField.checked;
+    const passwordField = document.getElementById('password-field');
+    const newPassword = String(passwordField.value);
 
     if (newName === null || newName === '') {
         alert('Name required for new Player');
@@ -57,10 +40,14 @@ function addPlayer() {
     } else if (newDivision === null || newDivision === '') {
         alert('Division required for new Player');
         return;
+    } else if (newPassword === null || newPassword === '' || newPassword.length < 8) {
+        alert('Password required with 8 or more characters')
+        return;
     }
 
     fetch(playersUrl, {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-type': 'application/json; charset=UTF-8'
         },
@@ -70,34 +57,50 @@ function addPlayer() {
             phoneNumber: newPhone,
             division: newDivision,
             availabilityNotes: newAvailability,
-            anonymise: newAnonymise
+            anonymise: newAnonymise,
+            adminUser: newAdminUser,
+            password: newPassword
         })
     })
     .then(() => {
         console.log('New Player saved');
-        location.reload();
+        nameField.value = '';
+        emailField.value = '';
+        phoneField.value = '';
+        divisionField.value = '';
+        availabilityField.value = '';
+        anonymiseField.value = '';
+        adminField.value = '';
+
+        passwordField.value = '';
+        loadPlayerDeleteSelect();
+        const updatePlayerSelect = document.getElementById('update-player-select');
+        loadPlayerUpdateSelect(updatePlayerSelect);
     })
     .catch(error => console.error('Error saving new player: ', error));
 }
 
 
-function configurePlayerDelete() {
-    const deletePlayersSelect = document.getElementById('delete-player-select');
-
-    fetch(playersUrl, {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(players => {
-        players.forEach(player => {
-            deletePlayersSelect.innerHTML = deletePlayersSelect.innerHTML + `<option value="${player.id}">${player.name}</option>`;
-        });
-    })
-    .catch(error => console.error('Error fetching players for delete:', error));
+async function configurePlayerDelete() {
+    await loadPlayerDeleteSelect();
 
     const deleteButton = document.getElementById('delete-player-button');
     deleteButton.onclick = deletePlayer;
+}
+
+async function loadPlayerDeleteSelect() {
+    const deletePlayersSelect = document.getElementById('delete-player-select');
+
+    const response = await fetch(playersUrl, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    const players = await response.json();
+
+    deletePlayersSelect.innerHTML = selectTopLineOption;
+    players.forEach(player => {
+        deletePlayersSelect.innerHTML = deletePlayersSelect.innerHTML + `<option value="${player.id}">${player.name}</option>`;
+    });
 }
 
 function deletePlayer() {
@@ -109,31 +112,42 @@ function deletePlayer() {
     }
 
     if (confirm(`Are you sure you want to delete Player: ${deletePlayersSelect.options[deletePlayersSelect.selectedIndex].text}?`)) {
-        fetch(playersUrl + '/' + playerId, {method: 'delete'})
-            .then(() => configurePlayerDelete())
-            .catch(error => console.error('Error deleting player:', error));
+        fetch(playersUrl + '/' + playerId, {
+            method: 'delete',
+            credentials: 'include'
+        })
+        .then(() => configurePlayerDelete())
+        .catch(error => console.error('Error deleting player:', error));
     }
 }
 
 
-function configurePlayerUpdate() {
+async function configurePlayerUpdate() {
     const updatePlayerSelect = document.getElementById('update-player-select');
-
-    fetch(playersUrl, {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(players => {
-        players.forEach(player => {
-            updatePlayerSelect.innerHTML = updatePlayerSelect.innerHTML + `<option value="${player.id}">${player.name}</option>`;
-        });
-    })
-    .catch(error => console.error('Error fetching players for update:', error));
+    await loadPlayerUpdateSelect(updatePlayerSelect);
 
     updatePlayerSelect.onchange = updatePlayerLoad;
     const updateButton = document.getElementById('update-player-button');
     updateButton.onclick = updatePlayer;
+}
+
+async function loadPlayerUpdateSelect(updatePlayerSelect) {
+    const response = await fetch(playersUrl, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    const players = await response.json();
+
+    updatePlayerSelect.innerHTML = selectTopLineOption;
+    players.forEach(player => {
+        updatePlayerSelect.innerHTML = updatePlayerSelect.innerHTML + `<option value="${player.id}">${player.name}</option>`;
+    });
+}
+
+
+function configurePasswordUpdate() {
+    const updatePlayerPasswordButton = document.getElementById('password-update-button');
+    updatePlayerPasswordButton.onclick = updatePlayerPasswordButton;
 }
 
 function updatePlayerLoad() {
@@ -144,6 +158,7 @@ function updatePlayerLoad() {
     const updateAvailability = document.getElementById('availability-update-field');
     const updateRedFlagged = document.getElementById('red-flagged-update-field');
     const updateAnonymise = document.getElementById('anonymise-update-field');
+    const updateAdminUser = document.getElementById('admin-update-field');
 
     const url = API_CONFIG.API_BASE_URL + '/players/' + document.getElementById('update-player-select').value;
 
@@ -165,13 +180,22 @@ function updatePlayerLoad() {
 }
 
 function updatePlayer() {
-    const updateName = document.getElementById('name-update-field').value;
-    const updateEmail = document.getElementById('email-update-field').value;
-    const updatePhone = document.getElementById('phone-update-field').value;
-    const updateDivision = document.getElementById('division-update-field').value;
-    const updateAvailability = document.getElementById('availability-update-field').value;
-    const updateRedFlagged = document.getElementById('red-flagged-update-field').checked;
-    const updateAnonymise = document.getElementById('anonymise-update-field').checked;
+    const updateNameField = document.getElementById('name-update-field');
+    const updateName = updateNameField.value;
+    const updateEmailField = document.getElementById('email-update-field');
+    const updateEmail = updateEmailField.value;
+    const updatePhoneField = document.getElementById('phone-update-field');
+    const updatePhone = updatePhoneField.value;
+    const updateDivisionField = document.getElementById('division-update-field');
+    const updateDivision = updateDivisionField.value;
+    const updateAvailabilityField = document.getElementById('availability-update-field');
+    const updateAvailability = updateAvailabilityField.value;
+    const updateRedFlaggedField = document.getElementById('red-flagged-update-field');
+    const updateRedFlagged = updateRedFlaggedField.checked;
+    const updateAnonymiseField = document.getElementById('anonymise-update-field');
+    const updateAnonymise = updateAnonymiseField.checked;
+    const updateAdminUserField = document.getElementById('admin-update-field');
+    const updateAdminUser = updateAdminUserField.checked;
 
     const url = API_CONFIG.API_BASE_URL + '/players/' + document.getElementById('update-player-select').value;
     fetch(url, {
@@ -187,12 +211,41 @@ function updatePlayer() {
             division: updateDivision,
             availabilityNotes: updateAvailability,
             redFlagged: updateRedFlagged,
-            anonymise: updateAnonymise
+            anonymise: updateAnonymise,
+            adminUser: updateAdminUser
         })
     })
     .then(() => {
-        console.log('Player updated');
-        location.reload();
+        console.log('Player details successfully updated');
+        updateNameField.value = '';
+        updateEmailField.value = '';
+        updatePhoneField.value = '';
+        updateDivisionField.value = '';
+        updateAvailabilityField.value = '';
+        updateRedFlaggedField.value = '';
+        updateAnonymiseField.value = '';
+        updateAdminUserField.value = '';
+    })
+    .catch(error => console.error('Error saving player update: ', error));
+}
+
+function updatePlayerPassword() {
+    const passwordInput = document.getElementById('password-update-field');
+    const updatePlayer = document.getElementById('update-player-select').value;
+    const updatePassword = passwordInput.value;
+
+    const url = API_CONFIG.API_BASE_URL + '/admin/password';
+    fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+            playerId: updatePlayer,
+            newPassword: updatePassword
+        })
+    })
+    .then(() => {
+        console.log('Player password successfully updated.');
+        passwordInput.value = '';
     })
     .catch(error => console.error('Error saving player update: ', error));
 }

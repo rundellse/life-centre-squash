@@ -50,18 +50,18 @@ public class PdfService {
     private SeasonRepository seasonRepository;
 
     @Autowired
-    private TableService tableService;
+    private SeasonService seasonService;
 
     @Value("${squash.league.pdf.path:/pdf}")
     String pdfPath;
 
 
     public Resource getCurrentSeasonPdfResource() {
-        Map<Integer, List<Player>> divisions = tableService.getCurrentDivisions();
+        Map<Integer, List<Player>> divisions = seasonService.getCurrentDivisions();
         Season season = seasonRepository.findSeasonForDate(LocalDate.now());
         if (season == null) {
             LOG.error("Not able to find season for Current date, please ensure a Season has been created with an end-date in the future.");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not able to find season for Current date, please ensure a Season has been created with an end-date in the future.");
         }
 
         String path = assembleSeasonPdfFile(divisions, season.getEndDate().format(DateTimeFormatter.ofPattern("EEEE, d MMMM")).toUpperCase());
@@ -96,8 +96,9 @@ public class PdfService {
             contentStream = drawDivisionTables(divisions, yPosition, pdPage, pdDocument, contentStream, pageHeight);
             contentStream.close();
 
+            LocalDate currentDate = LocalDate.now();
             LOG.trace("pdfPath: {}", pdfPath);
-            String filePath = pdfPath + "/_players.pdf";
+            String filePath = pdfPath + "/" + currentDate.format(DateTimeFormatter.ISO_DATE) + "_players.pdf";
             LOG.trace("filePath: {}", filePath);
             pdDocument.save(filePath);
 
@@ -279,10 +280,17 @@ public class PdfService {
         // Player rows
         char letter = 'A';
         for (Player player : division) {
+            String phoneNumber = player.getPhoneNumber();
+            if (phoneNumber == null) {
+                phoneNumber = "";
+            } else if (phoneNumber.length() > 5) {
+                phoneNumber = phoneNumber.substring(0, 5) + " " + phoneNumber.substring(5);
+            }
+
             String[] row = {
                     String.valueOf(letter++),
                     player.getName(),
-                    player.getPhoneNumber().substring(0, 5) + " " + player.getPhoneNumber().substring(5),
+                    phoneNumber,
             };
             for (int i = 0; i < row.length; i++) {
                 contentStream.setFont(BOLD_FONT, FONT_SIZE);

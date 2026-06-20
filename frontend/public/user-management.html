@@ -5,12 +5,24 @@
         <title>PLCSL - Profile</title>
         <meta name="description" content="User management page">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="/frontend/public/favicon.png">
         <link rel="stylesheet" href="../src/css/styles.css">
         <link rel="stylesheet" href="../src/css/accountStyles.css">
     </head>
     <body>
+        <h1>Plymouth Life Centre Squash League</h1>
         <nav>
-            <a href="index.html">League</a>
+            <div class="nav-left">
+                <a href="index.html">League</a>
+                <a href="about.html">About</a>
+                <a href="admin.html" id="admin-link" hidden="">Admin</a>
+                <a href="tableAdmin.html" id="table-admin-link" hidden="">Table Admin</a>
+            </div>
+            <div class="nav-right">
+                <a href="login.html">Login</a>
+                <a href="user-management.html">Account</a>
+                <button id="logout-button">Logout</button>
+            </div>
         </nav>
 
         <form id="update-user-form">
@@ -21,6 +33,8 @@
             <br/><br/>
             <label>Email Address</label>
             <br/>
+            <p1>Please note: updating your email will log you out and will require you to re-login with the new email.</p1>
+            <br/>
             <input id="email-field" type="text"/>
             <br/><br/>
             <label>Phone Number</label>
@@ -29,7 +43,7 @@
             <br/><br/>
             <label>Availability Notes</label>
             <br/>
-            <p1>Use this for any notes relating to your availability and contact details e.g. what days of the week you
+            <p1>Use this for any notes relating to your availability and contact details e.g. what times/days of the week you
                 are typically available, are you contactable through WhatsApp, etc..</p1>
             <br/>
             <textarea id="availability-field" type="text"></textarea>
@@ -53,5 +67,7 @@
 
         <script src="../src/js/config.js"></script>
         <script src="../src/js/userScript.js"></script>
+        <script src="../src/js/loginCheckScript.js"></script>
+        <script src="../src/js/logoutScript.js"></script>
     </body>
 </html>
