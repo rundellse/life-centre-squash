@@ -1,0 +1,53 @@
+.admin-details-cell, 
+.admin-name-cell {
+    width: 280px;
+    min-width: fit-content;
+
+    font-weight: bold;
+    text-align: center;
+}
+
+.admin-division-table {
+    margin-bottom: 20px;
+}
+
+.admin-label {
+    margin-left: 20px;
+}
+
+.admin-form-content {
+    display: grid;
+    width: 30%;
+    columns: 100px 3;
+}
+
+.new-player-field {
+    display: block;
+    margin-top: 10px;
+}
+
+
+h2 {
+    text-align: left;
+    margin-left: 25%;
+}
+
+input {
+    float: right;
+    width: 40%;
+}
+
+textarea {
+    float: right;
+    width: 40%;
+}
+
+select {
+    margin-left: 20px;
+}
+
+button {
+    display: block;
+    margin-top: 10px;
+    margin-left: 20px;
+}
