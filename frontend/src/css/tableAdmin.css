@@ -4,6 +4,11 @@ button {
     margin-top: 10px;
 }
 
+#season-end-text {
+    text-align: left;
+    margin-left: 20%;
+}
+
 #admin-table-block {
     display: block;
     margin-top: 40px;

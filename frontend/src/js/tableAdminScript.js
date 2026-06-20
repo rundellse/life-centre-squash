@@ -3,6 +3,7 @@ const playersUrl = API_CONFIG.API_BASE_URL + '/players';
 const newSeasonUrl = API_CONFIG.API_BASE_URL + '/table/new-season';
 const updateTableUrl = API_CONFIG.API_BASE_URL + '/table/update-table';
 const generatePdfUrl = API_CONFIG.API_BASE_URL + '/table/generate-pdf';
+const seasonEndUrl = API_CONFIG.API_BASE_URL + '/season/end-date';
 
 class Division {
     constructor(divisionNum) {
@@ -23,9 +24,27 @@ let divisionsCount = 0;
 
 
 document.addEventListener('DOMContentLoaded', async function() {
+    await loadSeasonEnd();
     await populateAdminTable();
     configureSeasonButtons();
 });
+
+
+async function loadSeasonEnd() {
+    const response = await fetch(seasonEndUrl, {
+        method: 'GET'
+    });
+
+    if (!response.ok) {
+        throw new Error('Error while trying to find league end-date');
+        return;
+    }
+
+    const returnedText = await response.text();
+
+    const seasonEndText = document.getElementById('season-end-text');
+    seasonEndText.innerText = `Current league end-date is: ${returnedText}`;
+}
 
 
 async function populateAdminTable() {

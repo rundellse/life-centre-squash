@@ -1,12 +1,15 @@
 const playerUrl = API_CONFIG.API_BASE_URL + '/user/player';
 const playersDivisionsUrl = API_CONFIG.API_BASE_URL + '/players/divisions';
 const matchUrl = API_CONFIG.API_BASE_URL + '/match';
+const seasonEndUrl = API_CONFIG.API_BASE_URL + '/season/end-date';
 let isAdmin = false;
 
 let userPlayerId = -1;
 
+
 document.addEventListener('DOMContentLoaded', async function() {
     try {
+        await loadSeasonEnd();
         await getPlayerForUser();
         await loadTables();
 
@@ -14,6 +17,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Page initialization failed:', error);
     }
 });
+
+
+async function loadSeasonEnd() {
+    const response = await fetch(seasonEndUrl, {
+        method: 'GET'
+    });
+
+    if (!response.ok) {
+        throw new Error('Error while trying to find league end-date');
+        return;
+    }
+
+    const returnedText = await response.text();
+
+    const seasonEndText = document.getElementById('season-end-text');
+    seasonEndText.innerText = `Current league end-date is: ${returnedText}`;
+}
+
 
 async function getPlayerForUser() {
     const response = await fetch(playerUrl, {
@@ -27,6 +48,7 @@ async function getPlayerForUser() {
     
     userPlayerId = await response.json();
 }
+
 
 async function loadTables() {
     const response = await fetch(playersDivisionsUrl, {
@@ -51,7 +73,7 @@ function createDivisionSection(division) {
     const divisionSection = document.createElement('div');
 
     const divisionTitle = document.createElement('h2');
-    divisionTitle.class = 'table-heading';
+    divisionTitle.className = 'table-heading';
     divisionTitle.textContent = getDivisionTitle(division.divisionRank);
 
     const divisionTable = document.createElement('table');

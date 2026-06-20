@@ -1,6 +1,6 @@
 const logoutUrl = API_CONFIG.API_BASE_URL + '/logout';
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     await configureLogoutButton();
 });
 

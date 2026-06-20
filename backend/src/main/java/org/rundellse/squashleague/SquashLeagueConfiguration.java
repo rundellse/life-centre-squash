@@ -100,6 +100,7 @@ public class SquashLeagueConfiguration implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/login").permitAll()
                                 .requestMatchers("/error").permitAll()
+                                .requestMatchers("/season/end-date").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/players/**").hasAnyAuthority(Role.ROLE_ADMIN.toString(), Role.ROLE_USER.toString())
                                 .requestMatchers(HttpMethod.POST, "/players/**").hasAuthority(Role.ROLE_ADMIN.toString())
                                 .requestMatchers(HttpMethod.GET, "/table/**").hasAuthority(Role.ROLE_ADMIN.toString())

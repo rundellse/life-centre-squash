@@ -5,7 +5,7 @@ html {
 /* Table Start */
 #table-block {
     display: block;
-    margin-top: 80px;
+    margin-top: 40px;
     margin-left: 10%;
     margin-right: 10%;
     margin-bottom: 100px;
@@ -174,7 +174,7 @@ nav .nav-right button:hover {
     background: #c0392b;
 }
 
-/* Responsive */
+/* Response to narrow screens (e.g. phones) */
 @media (max-width: 700px) {
     nav {
         flex-direction: column;
@@ -225,4 +225,8 @@ label {
     text-align: center;
     font-size: 1.4rem;
     background-color: #f2f2f2;
+}
+
+#season-end-block {
+    font-weight: bolder;
 }

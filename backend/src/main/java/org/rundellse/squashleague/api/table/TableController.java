@@ -2,6 +2,7 @@ package org.rundellse.squashleague.api.table;
 
 import org.rundellse.squashleague.api.table.dto.BulkPlayerUpdateDTO;
 import org.rundellse.squashleague.model.Player;
+import org.rundellse.squashleague.model.Season;
 import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.service.PdfService;
 import org.rundellse.squashleague.service.SeasonService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -33,6 +35,12 @@ public class TableController {
     @Autowired
     private PdfService pdfService;
 
+
+    @GetMapping("/season/end-date")
+    public String getCurrentSeasonEndDate() {
+        Season currentSeason = seasonService.getCurrentSeason();
+        return currentSeason.getEndDate().format(DateTimeFormatter.ofPattern("EEEE, d MMMM")).toUpperCase();
+    }
 
     @PostMapping("/table/new-season")
     public Map<Integer, List<Player>> newSeason(@RequestBody LocalDate newSeasonEndDate) {
