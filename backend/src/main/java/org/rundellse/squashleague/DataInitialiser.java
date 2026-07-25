@@ -41,7 +41,7 @@ public class DataInitialiser {
     @PostConstruct
     public void init() {
         if (userRepository.count() != 0) {
-            LOG.trace("User repository already populated. No data init.");
+            LOG.info("User repository already populated. No data init performed.");
             return;
         }
 
@@ -90,13 +90,13 @@ public class DataInitialiser {
         playerRepository.save(userPlayer);
 
 
-        for (int i = 1; i < 12; i++) {
+        for (int i = 1; i < 17; i++) {
             Player player = playerRepository.save(new Player(
                     "Player " + i,
                     "email" + i + "@email.com",
                     "07777777" + i,
                     "Availability" + i,
-                    i % 3,
+                    i % 4,
                     false,
                     false
             ));

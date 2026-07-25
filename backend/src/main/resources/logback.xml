@@ -17,7 +17,7 @@
 
 
     <logger name="org.rundellse.squashleague" level="TRACE" />
-    <logger name="org.springframework" level="DEBUG" />
+<!--    <logger name="org.springframework" level="DEBUG" />-->
 
 <!--    <logger name="org.springframework.security" level="TRACE" />-->
     <!--    <logger name="org.hibernate.SQL" level="TRACE" />-->

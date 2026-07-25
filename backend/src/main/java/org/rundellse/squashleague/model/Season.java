@@ -2,7 +2,7 @@ package org.rundellse.squashleague.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -13,10 +13,10 @@ public class Season {
     private Long id;
 
     @Column(name = "start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @OneToMany
     private Set<SquashMatch> squashMatches;
@@ -24,13 +24,13 @@ public class Season {
     public Season() {
     }
 
-    public Season(Long id, LocalDate startDate, LocalDate endDate) {
+    public Season(Long id, LocalDateTime startDate, LocalDateTime endDate) {
         this.id = id;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public Season(LocalDate startDate, LocalDate endDate) {
+    public Season(LocalDateTime startDate, LocalDateTime endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -43,19 +43,19 @@ public class Season {
         this.id = id;
     }
 
-    public LocalDate getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 

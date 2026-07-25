@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -70,7 +69,7 @@ public class TableController {
     }
 
     @GetMapping("/table/generate-pdf")
-    public ResponseEntity<Resource> getCurrentSeasonPdf() throws IOException {
+    public ResponseEntity<Resource> getCurrentSeasonPdf() {
         Resource pdfResource = pdfService.getCurrentSeasonPdfResource();
         LOG.debug("PDF generated. Resource to be returned: {}", pdfResource);
         return ResponseEntity.ok()

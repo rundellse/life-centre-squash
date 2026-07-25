@@ -64,14 +64,14 @@ public class PlayerController {
         LOG.info("Persisted new Player, ID: {}. Persisted new User, ID: {}", newPlayer.getId(), newUser.getId());
     }
 
-    @PostMapping("/players/{id}")
+    @PostMapping("/players/{playerId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Player updatePlayer(@PathVariable Long id, @RequestBody PlayerDetailsDTO playerDetailsDTO) {
-        LOG.debug("Updating player with ID: {}", id);
+    public Player updatePlayer(@PathVariable Long playerId, @RequestBody PlayerDetailsDTO playerDetailsDTO) {
+        LOG.debug("Updating player with ID: {}", playerId);
 
-        Optional<Player> playerOptional = playerRepository.findById(id);
+        Optional<Player> playerOptional = playerRepository.findById(playerId);
         if (playerOptional.isEmpty()) {
-            LOG.error("Player with ID: {} not found. Cannot be updated", id);
+            LOG.error("Player with ID: {} not found. Cannot be updated", playerId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
@@ -79,8 +79,9 @@ public class PlayerController {
         PlayerService.updatePlayerFromPlayerDetailsDTO(updatedPlayer, playerDetailsDTO);
         playerRepository.save(updatedPlayer);
 
-        User updatedUser = updatedPlayer.getUser();
-        userService.updateUserFromPlayerDetailsDTO(updatedUser, playerDetailsDTO);
+        if (updatedPlayer.getUser() != null) {
+            userService.updateUserFromPlayerDetailsDTO(updatedPlayer.getUser(), playerDetailsDTO);
+        }
 
         return updatedPlayer;
     }
@@ -92,16 +93,21 @@ public class PlayerController {
 
         Optional<Player> playerOptional = playerRepository.findById(id);
         if (playerOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot find Player for ID: " + id);
+            String message = "Cannot find Player for ID: " + id;
+            LOG.error(message);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
 
         Player player = playerOptional.get();
         User user = player.getUser();
 
-        user.setPlayer(null);
         player.setUser(null);
 
-        userRepository.delete(user);
+        if (user != null) {
+            user.setPlayer(null);
+            userRepository.delete(user);
+        }
+
         playerRepository.delete(player);
         LOG.debug("Player and User deleted for playerId: {}", id);
     }

@@ -25,7 +25,7 @@ async function loadSeasonEnd() {
     });
 
     if (!response.ok) {
-        throw new Error('Error while trying to find league end-date');
+        console.log('Error while trying to find league end-date');
         return;
     }
 

@@ -6,13 +6,13 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Repository
 public interface SeasonRepository extends CrudRepository<Season, Long> {
 
-    @Query("FROM Season s WHERE s.startDate <= :date AND :date < s.endDate")
-    Season findSeasonForDate(@Param("date") LocalDate date);
+    @Query("FROM Season s WHERE s.startDate <= :date AND :date < s.endDate ORDER BY s.endDate DESC")
+    Season findSeasonForDate(@Param("date") LocalDateTime date);
 
     Season findFirstByOrderByEndDateDesc();
 

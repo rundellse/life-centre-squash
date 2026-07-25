@@ -10,14 +10,15 @@ import org.rundellse.squashleague.persistence.PlayerRepository;
 import org.rundellse.squashleague.persistence.SeasonRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class SeasonServiceTest {
@@ -25,7 +26,8 @@ class SeasonServiceTest {
     public static final String GENERIC_EMAIL = "email@email.com";
     public static final String GENERIC_PHONE_NUMBER = "0777777777";
     public static final String GENERIC_AVAILABILITY_NOTES = "Availability Notes";
-    private final Season PREVIOUS_SEASON = new Season(2L, LocalDate.now().minusDays(14), LocalDate.now());
+    public static final int BASE_DIVISION_SIZE = 5;
+    private final Season PREVIOUS_SEASON = new Season(2L, LocalDateTime.now().minusDays(14), LocalDateTime.now());
 
     private SeasonService seasonService;
 
@@ -40,16 +42,17 @@ class SeasonServiceTest {
         playerRepository = mock(PlayerRepository.class);
         seasonService.setSeasonH2DAO(seasonRepository);
         seasonService.setPlayerH2DAO(playerRepository);
+        seasonService.setBaseDivisionSize(BASE_DIVISION_SIZE);
     }
 
 
     @Test
     public void endCurrentSeasonTest_happyPath() {
         // Probably should have just been an Integration test.
-        when(seasonRepository.findSeasonForDate(LocalDate.now())).thenReturn(PREVIOUS_SEASON);
+        when(seasonRepository.findSeasonForDate(any(LocalDateTime.class))).thenReturn(PREVIOUS_SEASON);
         List<Player> endSeasonPlayerList = populateEndSeasonPlayerList();
         when(playerRepository.findAll()).thenReturn(endSeasonPlayerList);
-        when(seasonRepository.save(any(Season.class))).thenReturn(new Season(3L, LocalDate.now(), LocalDate.now().plusDays(7)));
+        when(seasonRepository.save(any(Season.class))).thenReturn(new Season(3L, LocalDateTime.now().minusMinutes(10L), LocalDateTime.now().plusDays(7L)));
 
         Map<Integer, List<Player>> result = seasonService.endSeasonNewSeason(LocalDate.now().plusDays(28));
 
@@ -69,14 +72,20 @@ class SeasonServiceTest {
         verify(seasonRepository, times(2)).save(seasonArgumentCaptor.capture());
         Season capturedSeason = seasonArgumentCaptor.getAllValues().get(0);
         assertNull(capturedSeason.getId()); // When passed to save the ID is null, save provides ID.
-        assertEquals(LocalDate.now(), capturedSeason.getStartDate());
-        assertEquals(LocalDate.now().plusDays(28), capturedSeason.getEndDate());
+        assertTrue(timesWithinTwoMinutes(capturedSeason.getStartDate(), LocalDateTime.now()));
+        assertTrue(timesWithinTwoMinutes(capturedSeason.getEndDate(), LocalDateTime.of(LocalDate.now().plusDays(28), LocalTime.of(23, 59))));
 
         capturedSeason = seasonArgumentCaptor.getAllValues().get(1);
         assertEquals(2L, capturedSeason.getId());
-        assertEquals(LocalDate.now().minusDays(14), capturedSeason.getStartDate());
-        assertEquals(LocalDate.now(), capturedSeason.getEndDate());
+        assertTrue(timesWithinTwoMinutes(capturedSeason.getStartDate(), LocalDateTime.now().minusDays(14)));
+        assertTrue(timesWithinTwoMinutes(capturedSeason.getEndDate(), LocalDateTime.now()));
+    }
 
+    private boolean timesWithinTwoMinutes(LocalDateTime resultTime, LocalDateTime checkedAgainstTime) {
+        LocalDateTime lowerBound = checkedAgainstTime.minusMinutes(2L);
+        LocalDateTime upperBound = checkedAgainstTime.plusMinutes(2L);
+
+        return resultTime.isAfter(lowerBound) && resultTime.isBefore(upperBound);
     }
 
     @Test

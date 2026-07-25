@@ -190,6 +190,10 @@ public class UserService {
 
     public boolean isUserAdmin(Player player) {
         User user = player.getUser();
+        if (user == null) {
+            return false;
+        }
+
         for (UserRole userRole : user.getUserRoles()) {
             if (userRole.getRole().equals(Role.ROLE_ADMIN)) {
                 return true;
@@ -214,6 +218,10 @@ public class UserService {
         }
 
         User userToUpdate = playerOptional.get().getUser();
-        userToUpdate.setPassword(passwordUpdateAdminDTO.newPassword());
+        if (userToUpdate == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found for player with ID: " + passwordUpdateAdminDTO.playerId());
+        }
+
+        saveNewPasswordForUser(passwordUpdateAdminDTO.newPassword(), userToUpdate);
     }
 }

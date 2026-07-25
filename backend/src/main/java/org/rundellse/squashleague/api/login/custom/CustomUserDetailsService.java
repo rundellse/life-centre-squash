@@ -1,5 +1,7 @@
 package org.rundellse.squashleague.api.login.custom;
 
+import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.rundellse.squashleague.model.user.User;
 import org.rundellse.squashleague.model.user.UserRole;
 import org.rundellse.squashleague.persistence.UserRepository;
@@ -20,8 +22,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public @Nonnull UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
         User user = userRepository.findUserByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException("No User found in DB");

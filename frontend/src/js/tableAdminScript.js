@@ -36,7 +36,7 @@ async function loadSeasonEnd() {
     });
 
     if (!response.ok) {
-        throw new Error('Error while trying to find league end-date');
+        console.log('Error while trying to find league end-date');
         return;
     }
 
@@ -243,6 +243,7 @@ function newSeason() {
     })
     .then(() => {
         window.alert('New Season created!');
+        location.reload();
     })
     .catch(error => console.error('Error creating new season:', error));
 }

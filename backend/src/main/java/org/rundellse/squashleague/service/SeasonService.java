@@ -8,9 +8,12 @@ import org.rundellse.squashleague.persistence.SeasonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,24 +30,30 @@ public class SeasonService {
     private SeasonRepository seasonRepository;
 
 
+    @Value("${squash.league.base.division.size:5}")
+    private int baseDivisionSize;
+
+
     public Map<Integer, List<Player>> endSeasonNewSeason(LocalDate newSeasonEndDate) {
         LOG.info("Ending Season for current date");
-        Season endingSeason = seasonRepository.findSeasonForDate(LocalDate.now());
+
+        LocalDateTime now = LocalDateTime.now();
+        Season endingSeason = seasonRepository.findSeasonForDate(now);
         if (endingSeason == null) {
             LOG.info("No Season found for current date, getting latest season");
             endingSeason = seasonRepository.findFirstByOrderByEndDateDesc();
 
             if (endingSeason == null) {
                 LOG.warn("No Season found in DB. Creating new Season, no end-season done");
-                createNewSeason(newSeasonEndDate);
+                createNewSeason(now, newSeasonEndDate);
                 return null;
             }
         }
 
         Map<Integer, List<Player>> newDivisions = createNewDivisions();
-        createNewSeason(newSeasonEndDate);
+        createNewSeason(now, newSeasonEndDate);
 
-        endingSeason.setEndDate(LocalDate.now());
+        endingSeason.setEndDate(now);
         seasonRepository.save(endingSeason);
 
         return newDivisions;
@@ -110,24 +119,18 @@ public class SeasonService {
     }
 
     private Map<Integer, List<Player>> createAndPopulateNewDivisions(List<Player> orderedPlayersList) {
-        //TODO chooseable division sizes
-        //TODO dealing with small player sizes
-        int sixPlayerDivisions = orderedPlayersList.size() % 5;
-        int totalPlayerDivisions = orderedPlayersList.size() / 5;
-        if (sixPlayerDivisions > totalPlayerDivisions) {
-            LOG.error("Not enough players for table/division sizes calculation, for now please assemble manually");
-            throw new IllegalArgumentException("Not enough players for table/division sizes calculation, for now please assemble manually.");
-        }
+        int totalNumberOfPlayerDivisions = orderedPlayersList.size() / baseDivisionSize;
 
-        Map<Integer, List<Player>> newDivisions = new HashMap<>(totalPlayerDivisions);
+        int[] divisionSizes = calculateDivisionSizes(orderedPlayersList, totalNumberOfPlayerDivisions);
 
+        Map<Integer, List<Player>> newDivisions = new HashMap<>(totalNumberOfPlayerDivisions);
         int runningPlayerTotal = 0;
-        for (int i = 0; i < totalPlayerDivisions; i++) {
-            int divisionSize = i < sixPlayerDivisions ? 6 : 5;
-            ArrayList<Player> newDivision = new ArrayList<>(divisionSize);
+
+        for (int i = 0; i < totalNumberOfPlayerDivisions; i++) {
+            ArrayList<Player> newDivision = new ArrayList<>();
             newDivisions.put(i, newDivision);
 
-            for (int k = 0; k < divisionSize; k++) {
+            for (int k = 0; k < divisionSizes[i]; k++) {
                 Player player = orderedPlayersList.get(runningPlayerTotal);
                 newDivision.add(player);
                 player.setDivision(i);
@@ -135,7 +138,17 @@ public class SeasonService {
                 runningPlayerTotal++;
             }
         }
+
         return newDivisions;
+    }
+
+    private int[] calculateDivisionSizes(List<Player> orderedPlayersList, int totalNumberOfPlayerDivisions) {
+        int[] divisionSizes = new int[totalNumberOfPlayerDivisions];
+        Arrays.fill(divisionSizes, baseDivisionSize);
+        for (int i = 0; i < orderedPlayersList.size() % baseDivisionSize; i++) {
+            divisionSizes[i % baseDivisionSize]++;
+        }
+        return divisionSizes;
     }
 
     void movePlayerInList(List<Player> orderedPlayerList, Player player, int indexChange) {
@@ -160,14 +173,14 @@ public class SeasonService {
         orderedPlayerList.remove(indexChange > 0 ? previousPlayerIndex : previousPlayerIndex + 1);
     }
 
-    private Season createNewSeason(LocalDate newSeasonEndDate) {
-        Season newSeason = new Season(LocalDate.now(), newSeasonEndDate);
-        return seasonRepository.save(newSeason);
+    private void createNewSeason(LocalDateTime now, LocalDate newSeasonEndDate) {
+        Season newSeason = new Season(now, LocalDateTime.of(newSeasonEndDate, LocalTime.of(23, 59)));
+        seasonRepository.save(newSeason);
     }
 
 
     public Season getCurrentSeason() {
-        Season season = seasonRepository.findSeasonForDate(LocalDate.now());
+        Season season = seasonRepository.findSeasonForDate(LocalDateTime.now());
 
         if (season == null) {
             LOG.error("No Season found for current date. Fetching latest as a backup.");
@@ -184,5 +197,9 @@ public class SeasonService {
 
     void setSeasonH2DAO(SeasonRepository seasonH2DAO) {
         this.seasonRepository = seasonH2DAO;
+    }
+
+    void setBaseDivisionSize(int baseDivisionSize) {
+        this.baseDivisionSize = baseDivisionSize;
     }
 }

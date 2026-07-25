@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -52,13 +53,14 @@ public class PdfService {
     @Autowired
     private SeasonService seasonService;
 
+
     @Value("${squash.league.pdf.path:/pdf}")
     String pdfPath;
 
 
     public Resource getCurrentSeasonPdfResource() {
         Map<Integer, List<Player>> divisions = seasonService.getCurrentDivisions();
-        Season season = seasonRepository.findSeasonForDate(LocalDate.now());
+        Season season = seasonRepository.findSeasonForDate(LocalDateTime.now());
         if (season == null) {
             LOG.error("Not able to find season for Current date, please ensure a Season has been created with an end-date in the future.");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not able to find season for Current date, please ensure a Season has been created with an end-date in the future.");
