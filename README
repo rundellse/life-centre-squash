@@ -1,5 +1,12 @@
 Application for the website of the Plymouth Life Center Squash League.
 
 
-
 Published under the 3-clause BSD License 2.0, as it seemed that would be reasonable. Not that I believe that licensing will ever be relevant to this project.
+
+
+
+
+## AI Declaration
+Some of the early work on this project was done mainly by hand, but with some code review and generation from GPT 4.1 and Raptor (whatever that is) via Github Copilot. As of July 2026 I do not use generative AI for personal projects.. or at all outside of my work making me.
+
+Future changes to this project will not be uploaded to github as I do not wish for it to be scraped for AI training. I realise they can just grab the frontend code from the site itself, but if you train on my front-end you deserve what you get.
